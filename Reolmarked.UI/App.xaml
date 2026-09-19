@@ -6,6 +6,7 @@
              xmlns:view="clr-namespace:Reolmarked.UI.Views"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
+        <!-- Add new pages to navigation here -->
         <DataTemplate DataType="{x:Type viewmodel:Example1ViewModel}">
             <view:Example1View/>
         </DataTemplate>

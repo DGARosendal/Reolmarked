@@ -8,12 +8,18 @@ namespace Reolmarked.UI.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        // Relay commands
         public RelayCommand ExampleView1Command { get; set; }
         public RelayCommand ExampleView2Command { get; set; }
+
+
+        // Viewmodels for navigation
 
         public Example1ViewModel Example1VM { get; set; }
         public Example2ViewModel Example2VM { get; set; }
 
+
+        // CurrentView for navigation
         private object _currentView;
 
         public object CurrentView
