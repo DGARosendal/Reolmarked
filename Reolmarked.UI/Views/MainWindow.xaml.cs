@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -6,10 +8,11 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Reolmarked.UI.ViewModels;
+using Reolmarked.Core.Repositories;
 
-namespace Reolmarked.UI
+namespace Reolmarked.UI.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -19,6 +22,18 @@ namespace Reolmarked.UI
         public MainWindow()
         {
             InitializeComponent();
+
+            /*
+            == For database == 
+
+            IConfigurationRoot config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            string? ConnectionString = config.GetConnectionString("DefaultConnection");
+        
+            IShelfRepository shelfRepository = new DatabaseShelfRepository(ConnectionString);
+             */
+
+            IShelfRepository shelfRepository = new InMemoryShelfRepository();
+            DataContext = new MainViewModel(shelfRepository);
         }
     }
 }
