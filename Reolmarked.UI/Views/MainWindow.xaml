@@ -26,7 +26,7 @@
               2. In MainViewModel.cs - Add Relaycommand that sets CurrentView to new usercontrol
               3. Add new reposiories in MainWindow.xaml.cs
         -->
-        
+
         <TextBlock Text="Middelby Reolmarked" 
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
@@ -35,21 +35,13 @@
                    FontFamily="Arial Black"
                    FontSize="16"
                    />
-        <Button Content="View1"
+        <Button Content="Reoler"
                 Grid.Column="1"
                 FontSize="14"
-        />
-        <Button Content="View2"
-                Grid.Column="2"
-                FontSize="14"
-        />
-        <Button Content="Example view 1"
-                Grid.Column="3"
-                FontSize="14"
-                Command="{Binding ExampleView1Command}"
+                Command="{Binding ShelfViewCommand}"
         />
         <Button Content="Example view 2"
-                Grid.Column="4"
+                Grid.Column="2"
                 FontSize="14"
                 Command="{Binding ExampleView2Command}"
         />

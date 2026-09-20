@@ -7,8 +7,8 @@
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
         <!-- Add new pages to navigation here -->
-        <DataTemplate DataType="{x:Type viewmodel:Example1ViewModel}">
-            <view:Example1View/>
+        <DataTemplate DataType="{x:Type viewmodel:ShelfViewModel}">
+            <view:ShelfView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type viewmodel:Example2ViewModel}">
             <view:Example2View/>

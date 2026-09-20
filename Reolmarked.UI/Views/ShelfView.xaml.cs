@@ -16,9 +16,9 @@ namespace Reolmarked.UI.Views
     /// <summary>
     /// Interaction logic for Example1View.xaml
     /// </summary>
-    public partial class Example1View : UserControl
+    public partial class ShelfView : UserControl
     {
-        public Example1View()
+        public ShelfView()
         {
             InitializeComponent();
         }

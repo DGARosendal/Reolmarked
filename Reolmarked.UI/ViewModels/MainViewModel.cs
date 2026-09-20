@@ -9,13 +9,13 @@ namespace Reolmarked.UI.ViewModels
     public class MainViewModel : ViewModelBase
     {
         // Relay commands
-        public RelayCommand ExampleView1Command { get; set; }
+        public RelayCommand ShelfViewCommand { get; set; }
         public RelayCommand ExampleView2Command { get; set; }
 
 
         // Viewmodels for navigation
 
-        public Example1ViewModel Example1VM { get; set; }
+        public ShelfViewModel Example1VM { get; set; }
         public Example2ViewModel Example2VM { get; set; }
 
 
@@ -30,13 +30,14 @@ namespace Reolmarked.UI.ViewModels
 
         public MainViewModel(IShelfRepository shelfRepository)
         {
-            Example1VM = new Example1ViewModel(shelfRepository);
+            Example1VM = new ShelfViewModel(shelfRepository);
             Example2VM = new Example2ViewModel();
             CurrentView = Example1VM;
 
-            ExampleView1Command = new RelayCommand(o =>
+            ShelfViewCommand = new RelayCommand(o =>
                 CurrentView = Example1VM
             );
+
             ExampleView2Command = new RelayCommand(o =>
                 CurrentView = Example2VM
             );
