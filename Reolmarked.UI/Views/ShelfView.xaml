@@ -61,19 +61,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Title Bar -->
-            <Border Grid.Row="0" BorderBrush="Black" BorderThickness="0,0,0,2" Padding="6,4">
-                <TextBlock Text="Reolmarked" FontWeight="Bold" FontSize="14"/>
-            </Border>
-
-            <!-- Navigation Bar -->
-            <Border Grid.Row="1" BorderBrush="Black" BorderThickness="0,0,0,2">
-                <StackPanel Orientation="Horizontal">
-                    <Border BorderBrush="Black" BorderThickness="0,0,2,0" Padding="12,6" Background="White">
-                        <TextBlock Text="Reoler" FontWeight="Bold"/>
-                    </Border>
-                </StackPanel>
-            </Border>
+           
 
             <!-- Main Interactive Content -->
             <Grid Grid.Row="2" Margin="20">
