@@ -15,8 +15,9 @@ namespace Reolmarked.UI.ViewModels
 
         public ObservableCollection<Shelf> Shelves { get; }
 
-        public List<string> StatusOptions { get; } = new List<string> { "Grøn", "Gul", "Rød" };
-        public List<string> ConfigurationOptions { get; } = new List<string> { "Reol", "Bøjle" };
+        // Dropdown options populated directly from the enum definitions
+        public List<Status> StatusOptions { get; } = Enum.GetValues(typeof(Status)).Cast<Status>().ToList();
+        public List<Configuration> ConfigurationOptions { get; } = Enum.GetValues(typeof(Configuration)).Cast<Configuration>().ToList();
 
         private Shelf _selectedShelf;
         public Shelf SelectedShelf
@@ -44,15 +45,15 @@ namespace Reolmarked.UI.ViewModels
             set => SetField(ref _shelfNumber, value);
         }
 
-        private string _status = "Grøn";
-        public string Status
+        private Status _status = Status.Ledig;
+        public Status Status
         {
             get => _status;
             set => SetField(ref _status, value);
         }
 
-        private string _configuration = "Reol";
-        public string Configuration
+        private Configuration _configuration = Configuration.SeksHylder;
+        public Configuration Configuration
         {
             get => _configuration;
             set => SetField(ref _configuration, value);
@@ -100,10 +101,9 @@ namespace Reolmarked.UI.ViewModels
 
         private bool CanUpdate(object parameter)
         {
-            return SelectedShelf != null && !string.IsNullOrWhiteSpace(Status) && !string.IsNullOrWhiteSpace(Configuration);
+            return SelectedShelf != null;
         }
 
-        // Delete button is enabled as long as there is at least one shelf in the list
         private bool CanDelete(object parameter)
         {
             return Shelves.Any();
@@ -113,11 +113,8 @@ namespace Reolmarked.UI.ViewModels
         {
             try
             {
-                var newShelf = new Shelf
-                {
-                    Status = Status ?? "Grøn",
-                    Configuration = Configuration ?? "Reol"
-                };
+                // Create new shelf with temporary number 1 (DB auto-assigns real ID via SCOPE_IDENTITY)
+                var newShelf = new Shelf(1, Configuration, Status);
 
                 _shelfRepository.Add(newShelf);
                 Shelves.Add(newShelf);
@@ -143,6 +140,7 @@ namespace Reolmarked.UI.ViewModels
 
                 _shelfRepository.Update(SelectedShelf);
 
+                // Refresh item in list so binding/converter reflects updated status
                 int index = Shelves.IndexOf(SelectedShelf);
                 if (index >= 0)
                 {
@@ -161,7 +159,6 @@ namespace Reolmarked.UI.ViewModels
         {
             try
             {
-                // Grab the last shelf in the list
                 var lastShelf = Shelves.LastOrDefault();
                 if (lastShelf == null) return;
 
@@ -172,11 +169,9 @@ namespace Reolmarked.UI.ViewModels
                 if (result != MessageBoxResult.Yes)
                     return;
 
-                // Delete last shelf from database and UI list
                 _shelfRepository.Delete(lastShelf.ShelfNumber);
                 Shelves.Remove(lastShelf);
 
-                // If the deleted shelf was selected, clear input fields
                 if (SelectedShelf == lastShelf)
                 {
                     ClearSelection();
@@ -195,8 +190,8 @@ namespace Reolmarked.UI.ViewModels
         {
             SelectedShelf = null;
             ShelfNumber = 0;
-            Status = "Grøn";
-            Configuration = "Reol";
+            Status = Status.Ledig;
+            Configuration = Configuration.SeksHylder;
         }
     }
 }

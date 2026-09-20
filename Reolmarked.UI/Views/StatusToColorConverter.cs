@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
+using Reolmarked.Core.Models;
 
 namespace Reolmarked.UI.Views
 {
@@ -9,13 +10,28 @@ namespace Reolmarked.UI.Views
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string status = value?.ToString()?.ToLower();
-
-            return status switch
+            // Direct enum match if passed as Status enum
+            if (value is Status statusEnum)
             {
-                "grøn" or "green" or "ledig" => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#28A745")),
-                "rød" or "red" or "optaget" => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8B0000")),
-                "gul" or "yellow" or "reserveret" => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD700")),
+                return statusEnum switch
+                {
+                    Status.Ledig => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#28A745")),      // Green
+                    Status.Booket => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8B0000")),     // Red
+                    Status.Opsagt => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD700")),     // Yellow
+                    Status.UdeAfDrift => Brushes.DarkGray,                                                        // Gray
+                    _ => Brushes.LightGray
+                };
+            }
+
+            // String fallback for safety
+            string statusStr = value?.ToString()?.ToLower();
+
+            return statusStr switch
+            {
+                "ledig" or "grøn" or "green" => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#28A745")),
+                "booket" or "optaget" or "rød" or "red" => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8B0000")),
+                "opsagt" or "reserveret" or "gul" or "yellow" => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD700")),
+                "udeafdrift" or "grå" or "gray" => Brushes.DarkGray,
                 _ => Brushes.LightGray
             };
         }

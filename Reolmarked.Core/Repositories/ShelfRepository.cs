@@ -16,23 +16,24 @@ namespace Reolmarked.Core.Repositories
 
         public void Add(Shelf shelf)
         {
-            // Do NOT insert ShelfNumber explicitly because SQL Server handles it automatically
             string sql = @"INSERT INTO dbo.SHELF (Status, Configuration)
-                   VALUES (@Status, @Configuration);
-                   SELECT SCOPE_IDENTITY();";
+                           VALUES (@Status, @Configuration);
+                           SELECT SCOPE_IDENTITY();";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@Status", shelf.Status ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Configuration", shelf.Configuration ?? (object)DBNull.Value);
+
+                // Convert enum values to string for database storage
+                command.Parameters.AddWithValue("@Status", shelf.Status.ToString());
+                command.Parameters.AddWithValue("@Configuration", shelf.Configuration.ToString());
 
                 connection.Open();
 
                 object result = command.ExecuteScalar();
                 if (result != null && result != DBNull.Value)
                 {
-                    // Assign the auto-generated identity ID back to the object
+                    // Set the auto-generated identity ID back on the object
                     shelf.ShelfNumber = Convert.ToInt32(result);
                 }
             }
@@ -49,8 +50,8 @@ namespace Reolmarked.Core.Repositories
             {
                 SqlCommand command = new SqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@ShelfNumber", shelf.ShelfNumber);
-                command.Parameters.AddWithValue("@Status", shelf.Status ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Configuration", shelf.Configuration ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Status", shelf.Status.ToString());
+                command.Parameters.AddWithValue("@Configuration", shelf.Configuration.ToString());
 
                 connection.Open();
                 command.ExecuteNonQuery();
@@ -64,8 +65,8 @@ namespace Reolmarked.Core.Repositories
 
             // 2. Reseed the IDENTITY column to the highest remaining ShelfNumber (or 0 if table is empty)
             string reseedSql = @"
-        DECLARE @maxId INT = (SELECT ISNULL(MAX(ShelfNumber), 0) FROM dbo.SHELF);
-        DBCC CHECKIDENT ('dbo.SHELF', RESEED, @maxId);";
+                DECLARE @maxId INT = (SELECT ISNULL(MAX(ShelfNumber), 0) FROM dbo.SHELF);
+                DBCC CHECKIDENT ('dbo.SHELF', RESEED, @maxId);";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -128,12 +129,21 @@ namespace Reolmarked.Core.Repositories
 
         private Shelf MapShelf(SqlDataReader reader)
         {
-            return new Shelf
-            {
-                ShelfNumber = Convert.ToInt32(reader["ShelfNumber"]),
-                Status = reader["Status"] != DBNull.Value ? reader["Status"].ToString() : null,
-                Configuration = reader["Configuration"] != DBNull.Value ? reader["Configuration"].ToString() : null
-            };
+            int shelfNumber = Convert.ToInt32(reader["ShelfNumber"]);
+
+            // Parse Status enum from database string
+            string statusStr = reader["Status"]?.ToString();
+            Status status = Enum.TryParse<Status>(statusStr, out var parsedStatus)
+                ? parsedStatus
+                : Status.Ledig;
+
+            // Parse Configuration enum from database string
+            string configStr = reader["Configuration"]?.ToString();
+            Configuration config = Enum.TryParse<Configuration>(configStr, out var parsedConfig)
+                ? parsedConfig
+                : Configuration.SeksHylder;
+
+            return new Shelf(shelfNumber, config, status);
         }
     }
 }
