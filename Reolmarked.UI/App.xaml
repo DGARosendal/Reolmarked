@@ -2,8 +2,16 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Reolmarked.UI"
+             xmlns:viewmodel="clr-namespace:Reolmarked.UI.ViewModels"
+             xmlns:view="clr-namespace:Reolmarked.UI.Views"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
-         
+        <!-- Add new pages to navigation here -->
+        <DataTemplate DataType="{x:Type viewmodel:ShelfViewModel}">
+            <view:ShelfView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodel:Example2ViewModel}">
+            <view:Example2View/>
+        </DataTemplate>
     </Application.Resources>
 </Application>

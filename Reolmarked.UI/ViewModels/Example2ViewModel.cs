@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Reolmarked.UI.ViewModels
 {
-    public class ViewModel
+    public class Example2ViewModel : ViewModelBase
     {
     }
 }
