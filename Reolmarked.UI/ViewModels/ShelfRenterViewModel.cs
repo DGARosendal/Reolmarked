@@ -101,7 +101,7 @@ namespace Reolmarked.UI.ViewModels
                 // Check if phone number already exists in database/collection
                 if (ShelfRenters.Any(r => r.PhoneNumber.Equals(PhoneNumber?.Trim(), StringComparison.OrdinalIgnoreCase)))
                 {
-                    throw new InvalidOperationException($"A renter with phone number '{PhoneNumber}' already exists.");
+                    throw new InvalidOperationException($"En anden reollejer med telefonnummer '{PhoneNumber}' eksisterer allerede..");
                 }
 
                 var newRenter = new ShelfRenter(FirstName, LastName, PhoneNumber);
@@ -112,7 +112,7 @@ namespace Reolmarked.UI.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Could not add renter: {ex.Message}", "Error",
+                MessageBox.Show($"Kunne ikke tilføje reollejer: {ex.Message}", "Fejl",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -127,7 +127,7 @@ namespace Reolmarked.UI.ViewModels
                 if (ShelfRenters.Any(r => r.RenterId != SelectedRenter.RenterId &&
                                      r.PhoneNumber.Equals(PhoneNumber?.Trim(), StringComparison.OrdinalIgnoreCase)))
                 {
-                    throw new InvalidOperationException($"Another renter with phone number '{PhoneNumber}' already exists.");
+                    throw new InvalidOperationException($"En anden reollejer med telefonnummer '{PhoneNumber}' eksisterer allerede.");
                 }
 
                 // 1. Update properties on the selected object
@@ -153,7 +153,7 @@ namespace Reolmarked.UI.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Could not update renter: {ex.Message}", "Error",
+                MessageBox.Show($"Kunne ikke opdatere reollejer: {ex.Message}", "Fejl",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -165,8 +165,8 @@ namespace Reolmarked.UI.ViewModels
                 if (SelectedRenter == null) return;
 
                 var result = MessageBox.Show(
-                    $"Are you sure you want to delete {SelectedRenter.FirstName} {SelectedRenter.LastName}?",
-                    "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    $"Er du sikker på at du vil slette? {SelectedRenter.FirstName} {SelectedRenter.LastName}?",
+                    "Bekræft sletning", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result != MessageBoxResult.Yes) return;
 
@@ -177,7 +177,7 @@ namespace Reolmarked.UI.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Could not delete renter: {ex.Message}", "Error",
+                MessageBox.Show($"Kunne ikke slette reollejer: {ex.Message}", "Fejl",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
