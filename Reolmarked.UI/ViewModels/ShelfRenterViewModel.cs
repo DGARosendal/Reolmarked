@@ -90,6 +90,7 @@ namespace Reolmarked.UI.ViewModels
             }
         }
 
+
         private bool CanUpdate(object parameter) => SelectedRenter != null;
         private bool CanDelete(object parameter) => SelectedRenter != null;
 
@@ -171,6 +172,7 @@ namespace Reolmarked.UI.ViewModels
 
                 _renterRepository.Delete(SelectedRenter.RenterId);
                 Renters.Remove(SelectedRenter);
+                LoadRenters();
                 ClearForm();
             }
             catch (Exception ex)
