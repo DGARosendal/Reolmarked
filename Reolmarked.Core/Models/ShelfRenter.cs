@@ -20,9 +20,9 @@ namespace Reolmarked.Model
         // In short, by catching length-errors in the model-layer here, we can make the program more user friendly.  
 
         // The downside to this is that we lose the "single source of truth", 
-        // as 50 (as well as MaxPhoneNumberLength = 20, which has NVarChar(20) in the DB)
+        // as 50, as well as MaxPhoneNumberLength = 20, which has NVarChar(20) in the DB,
         // now also are values stored here in the model-layer. As such, we risk sync issues between
-        // these two values. If the length of a name changes to, say, 65 characters in the database, we
+        // these two values. If the length requirement of a name changes to, say, 65 characters in the database, we
         // have to remember to change it to 65 here too!
 
         // The way we have chosen to handle this is to be explicit in the comments about it, setting up 
