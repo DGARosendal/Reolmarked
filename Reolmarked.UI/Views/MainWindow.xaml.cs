@@ -32,8 +32,8 @@ namespace Reolmarked.UI.Views
             IShelfRepository shelfRepository = new DatabaseShelfRepository(ConnectionString);
              */
 
-            IShelfRepository shelfRepository = new ShelfRepository();
-            DataContext = new MainViewModel(shelfRepository);
+            
+            DataContext = new MainViewModel();
         }
     }
 }
