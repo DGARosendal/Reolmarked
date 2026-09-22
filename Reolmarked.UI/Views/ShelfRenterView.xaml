@@ -76,7 +76,7 @@
                 </Grid.RowDefinitions>
 
                 <DataGrid Grid.Row="0"
-                          ItemsSource="{Binding Renters}"
+                          ItemsSource="{Binding ShelfRenters}"
                           SelectedItem="{Binding SelectedRenter}"
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
