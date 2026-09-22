@@ -12,7 +12,7 @@ namespace Reolmarked.UI.ViewModels
     {
         private readonly IShelfRenterRepository _renterRepository;
 
-        public ObservableCollection<ShelfRenter> Renters { get; }
+        public ObservableCollection<ShelfRenter> ShelfRenters { get; }
 
         private ShelfRenter _selectedRenter;
         public ShelfRenter SelectedRenter
@@ -66,7 +66,7 @@ namespace Reolmarked.UI.ViewModels
         public ShelfRenterViewModel(IShelfRenterRepository renterRepository)
         {
             _renterRepository = renterRepository;
-            Renters = new ObservableCollection<ShelfRenter>();
+            ShelfRenters = new ObservableCollection<ShelfRenter>();
 
             AddCommand = new RelayCommand(AddRenter);
             UpdateCommand = new RelayCommand(UpdateRenter, CanUpdate);
@@ -82,11 +82,11 @@ namespace Reolmarked.UI.ViewModels
 
         private void LoadRenters()
         {
-            Renters.Clear();
+            ShelfRenters.Clear();
             var rentersFromDb = _renterRepository.GetAll();
             foreach (var renter in rentersFromDb)
             {
-                Renters.Add(renter);
+                ShelfRenters.Add(renter);
             }
         }
 
@@ -99,14 +99,14 @@ namespace Reolmarked.UI.ViewModels
             try
             {
                 // Check if phone number already exists in database/collection
-                if (Renters.Any(r => r.PhoneNumber.Equals(PhoneNumber?.Trim(), StringComparison.OrdinalIgnoreCase)))
+                if (ShelfRenters.Any(r => r.PhoneNumber.Equals(PhoneNumber?.Trim(), StringComparison.OrdinalIgnoreCase)))
                 {
                     throw new InvalidOperationException($"A renter with phone number '{PhoneNumber}' already exists.");
                 }
 
                 var newRenter = new ShelfRenter(FirstName, LastName, PhoneNumber);
                 _renterRepository.Add(newRenter);
-                Renters.Add(newRenter);
+                ShelfRenters.Add(newRenter);
                 SelectedRenter = newRenter;
                 ClearForm();
             }
@@ -124,7 +124,7 @@ namespace Reolmarked.UI.ViewModels
                 if (SelectedRenter == null) return;
 
                 // Check if another renter already uses the target phone number
-                if (Renters.Any(r => r.RenterId != SelectedRenter.RenterId &&
+                if (ShelfRenters.Any(r => r.RenterId != SelectedRenter.RenterId &&
                                      r.PhoneNumber.Equals(PhoneNumber?.Trim(), StringComparison.OrdinalIgnoreCase)))
                 {
                     throw new InvalidOperationException($"Another renter with phone number '{PhoneNumber}' already exists.");
@@ -139,16 +139,16 @@ namespace Reolmarked.UI.ViewModels
                 _renterRepository.Update(SelectedRenter);
 
                 // 3. Replace the item at its index to trigger DataGrid UI update
-                int index = Renters.IndexOf(SelectedRenter);
+                int index = ShelfRenters.IndexOf(SelectedRenter);
                 if (index >= 0)
                 {
-                    Renters[index] = new ShelfRenter(
+                    ShelfRenters[index] = new ShelfRenter(
                         SelectedRenter.RenterId,
                         SelectedRenter.FirstName,
                         SelectedRenter.LastName,
                         SelectedRenter.PhoneNumber
                     );
-                    SelectedRenter = Renters[index]; // Re-select updated item
+                    SelectedRenter = ShelfRenters[index]; // Re-select updated item
                 }
             }
             catch (Exception ex)
@@ -171,7 +171,7 @@ namespace Reolmarked.UI.ViewModels
                 if (result != MessageBoxResult.Yes) return;
 
                 _renterRepository.Delete(SelectedRenter.RenterId);
-                Renters.Remove(SelectedRenter);
+                ShelfRenters.Remove(SelectedRenter);
                 LoadRenters();
                 ClearForm();
             }
