@@ -40,10 +40,10 @@
                 FontSize="14"
                 Command="{Binding ShelfViewCommand}"
         />
-        <Button Content="Example view 2"
+        <Button Content="ReolLejer"
                 Grid.Column="2"
                 FontSize="14"
-                Command="{Binding ExampleView2Command}"
+                Command="{Binding ShelfRenterViewCommand}"
         />
 
 

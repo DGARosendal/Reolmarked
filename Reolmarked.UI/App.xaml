@@ -10,8 +10,8 @@
         <DataTemplate DataType="{x:Type viewmodel:ShelfViewModel}">
             <view:ShelfView/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type viewmodel:Example2ViewModel}">
-            <view:Example2View/>
+        <DataTemplate DataType="{x:Type viewmodel:ShelfRenterViewModel}">
+            <view:ShelfRenterView/>
         </DataTemplate>
     </Application.Resources>
 </Application>
