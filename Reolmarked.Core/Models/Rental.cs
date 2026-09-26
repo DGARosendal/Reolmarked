@@ -30,14 +30,16 @@ namespace Reolmarked.Core.Models
             get { return _startDate; }
             set
             {
-                // DateTime.MinValue (01-01-0001) is what the field holds if
-                // it is never set. That is not a valid start date for a rental.
-                // Therefore, if the value has not been assigned by the user, it will be 01-01-0001. 
-                // We check for this value as a way of determining whether the value has not been set, 
-                // and gently remind the user to set the date if this is the case. 
+                // The ViewModel defaults StartDate to today, but we can't rely on that
+                // always being the case if the UI is ever replaced. So we keep a backup
+                // validation here.
+                //
+                // DateTime.MinValue (01-01-0001) is what the field holds if it is never
+                // set. Since that is not a valid start date for a rental, we use it as a
+                // signal that the value was never assigned, and gently remind the user.
                 if (value == DateTime.MinValue)
                 {
-                    throw new ArgumentException("Startdato er ikke angivet. Vælg venligst en gyldig dato.");
+                    throw new ArgumentException("Startdato er ikke angivet korrekt. Vælg venligst en gyldig dato.");
                 }
 
                 _startDate = value;
