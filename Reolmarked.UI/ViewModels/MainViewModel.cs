@@ -10,13 +10,13 @@ namespace Reolmarked.UI.ViewModels
     {
         // Relay commands
         public RelayCommand ShelfViewCommand { get; set; }
-        public RelayCommand ExampleView2Command { get; set; }
+        public RelayCommand ShelfRenterViewCommand { get; set; }
 
 
         // Viewmodels for navigation
 
         public ShelfViewModel Example1VM { get; set; }
-        public Example2ViewModel Example2VM { get; set; }
+        public ShelfRenterViewModel Example2VM { get; set; }
 
 
         // CurrentView for navigation
@@ -28,17 +28,19 @@ namespace Reolmarked.UI.ViewModels
             set { _currentView = value; OnPropertyChanged(); }
         }
 
-        public MainViewModel(IShelfRepository shelfRepository)
+        public MainViewModel()
         {
+            IShelfRepository shelfRepository = new ShelfRepository();
+            IShelfRenterRepository shelfRenterRepository = new ShelfRenterRepository();
             Example1VM = new ShelfViewModel(shelfRepository);
-            Example2VM = new Example2ViewModel();
+            Example2VM = new ShelfRenterViewModel(shelfRenterRepository);
             CurrentView = Example1VM;
 
             ShelfViewCommand = new RelayCommand(o =>
                 CurrentView = Example1VM
             );
 
-            ExampleView2Command = new RelayCommand(o =>
+            ShelfRenterViewCommand = new RelayCommand(o =>
                 CurrentView = Example2VM
             );
         }

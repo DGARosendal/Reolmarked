@@ -121,7 +121,9 @@ namespace Reolmarked.UI.ViewModels
                 SelectedShelf = newShelf;
 
                 DeleteCommand.RaiseCanExecuteChanged();
+
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show($"Kunne ikke tilføje reol: {ex.Message}", "Fejl",
