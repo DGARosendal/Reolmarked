@@ -3,21 +3,6 @@
 namespace Reolmarked.Core.Models
 {
 
-    
-    // The two ways a shelf (currently) can be set up:
-    public enum Configuration
-    {
-        TreHylderOgBøjle,   // 3 shelves and a hanger
-        SeksHylder          // 6 shelves
-    }
-
-    public enum Status
-    {
-        Ledig,       // Free, can be rented
-        Booket,      // Rented by a renter
-        Opsagt,      // Renter has terminated, but the shelf is not free yet
-        UdeAfDrift   // Temporarily out of service
-    }
 
     public class Shelf
     {

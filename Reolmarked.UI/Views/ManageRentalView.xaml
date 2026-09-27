@@ -1,0 +1,155 @@
+﻿<UserControl x:Class="Reolmarked.UI.Views.ManageRentalView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:viewmodels="clr-namespace:Reolmarked.UI.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="850"
+             d:DataContext="{d:DesignInstance Type=viewmodels:ManageRentalViewModel}">
+
+    <UserControl.Resources>
+        <!-- Tekstfelt-stil der matcher wireframe med sorte kanter -->
+        <Style TargetType="TextBox">
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Padding" Value="4,0"/>
+        </Style>
+
+        <!-- Knap-stil der matcher ShelfView -->
+        <Style TargetType="Button" x:Key="ActionButtonStyle">
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="10,2"/>
+        </Style>
+
+        <!-- DataGrid-stil der matcher wireframe-udtrykket -->
+        <Style TargetType="DataGrid">
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="GridLinesVisibility" Value="All"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="Black"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Black"/>
+        </Style>
+    </UserControl.Resources>
+
+    <!-- Ydre ramme med tyk sort kant -->
+    <Border BorderBrush="Black" BorderThickness="4" Background="White" Margin="10">
+        <Grid Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Venstre side: Formular til at opdatere oplysninger -->
+            <Border Grid.Column="0" BorderBrush="Black" BorderThickness="2" Padding="15" Background="White">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="Booking Oplysninger" FontSize="18" FontWeight="Bold" Margin="0,0,0,5" />
+
+                        <!-- Formular til Startdato -->
+
+                        <TextBlock Text="Startdato for lejemål:" FontWeight="SemiBold" Margin="0,5,0,2" />
+                        <TextBox Text="{Binding StartDate, UpdateSourceTrigger=PropertyChanged, StringFormat='d'}" 
+                                 IsReadOnly="True" Background="LightGray" 
+                                 Margin="0,0,0,10" />
+
+                        <!-- Formular til Reollejer -->
+
+                        <TextBlock Text="Reollejer" FontSize="16" FontWeight="DemiBold" Margin="0,0,0,0" />
+
+                        <TextBlock Text="Fornavn:" FontWeight="SemiBold" Margin="0,5,0,2" />
+                        <TextBox Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsReadOnly="True" Background="LightGray" 
+                                 Margin="0,0,0,0" />
+
+                        <TextBlock Text="Efternavn:" FontWeight="SemiBold" Margin="0,5,0,2" />
+                        <TextBox Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsReadOnly="True" Background="LightGray" 
+                                 Margin="0,0,0,0" />
+
+                        <TextBlock Text="Telefonnummer:" FontWeight="SemiBold" Margin="0,5,0,2" />
+                        <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsReadOnly="True" Background="LightGray" 
+                                 Margin="0,0,0,15" />
+
+                        <!-- Formular til Reol -->
+
+                        <TextBlock Text="Reol" FontSize="16" FontWeight="DemiBold" Margin="0,0,0,0" />
+
+                        <TextBlock Text="Reol nr:" FontWeight="SemiBold" Margin="0,5,0,2" />
+                        <TextBox Text="{Binding ShelfNumber, UpdateSourceTrigger=PropertyChanged}" 
+                                 Margin="0,0,0,0" />
+
+                        <TextBlock Text="Konfiguration:" FontWeight="SemiBold" Margin="0,5,0,2" />
+                        <TextBox Text="{Binding Configuration, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsReadOnly="True" Background="LightGray" 
+                                 Margin="0,0,0,0" />
+
+                        <TextBlock Text="Status:" FontWeight="SemiBold" Margin="0,5,0,2" />
+                        <TextBox Text="{Binding Status, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsReadOnly="True" Background="LightGray" 
+                                 Margin="0,0,0,15" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Højre side: DataGrid og Handlingsknapper -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <DataGrid Grid.Row="0"
+                          ItemsSource="{Binding Rentals}"
+                          SelectedItem="{Binding SelectedRental}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single">
+                    <DataGrid.Columns>
+                        <!--  Later use                        
+                        <DataGridTextColumn Header="Fornavn" Binding="{Binding FirstName}" Width="*" />
+                        <DataGridTextColumn Header="Efternavn" Binding="{Binding LastName}" Width="*" />
+                        <DataGridTextColumn Header="Tlf. nr." Binding="{Binding PhoneNumber}" Width="70" />                        
+                        <DataGridTextColumn Header="Reol nr." Binding="{Binding ShelfNumber}" Width="50" />
+                        <DataGridTextColumn Header="Konfiguration" Binding="{Binding Configuration}" Width="*" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" />
+                        -->                     
+                        <DataGridTextColumn Header="Reol nr." Binding="{Binding ShelfNumber}" Width="*" />
+                        <DataGridTextColumn Header="Start dato" Binding="{Binding StartDate, StringFormat='d'}" Width="*" />
+                        <DataGridTextColumn Header="Reollejer id" Binding="{Binding RenterId}" Width="*" />
+                        <DataGridTextColumn Header="User id" Binding="{Binding UserId}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Handlingsknapper på dansk -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0">
+
+                    <Button Content="Opdater" 
+                            Style="{StaticResource ActionButtonStyle}" 
+                            Command="{Binding UpdateCommand}" 
+                            Width="90" Margin="5,0" />
+
+                    <Button Content="Opsig" 
+                            Style="{StaticResource ActionButtonStyle}" 
+                            Command="{Binding TerminateCommand}" 
+                            Width="90" Margin="5,0" />
+
+                    <Button Content="Nulstil valgte" 
+                            Style="{StaticResource ActionButtonStyle}" 
+                            Command="{Binding ClearSelectionCommand}" 
+                            Width="105" Margin="5,0" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

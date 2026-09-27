@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Reolmarked.UI.Views"
         mc:Ignorable="d"
-        Title="Middelby Reolmarked" Height="600" Width="1100">
+        Title="Middelby Reolmarked" Height="800" Width="1100">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
@@ -39,6 +39,10 @@
                 Grid.Column="3"
                 FontSize="14"
                 Command="{Binding ShelfRenterViewCommand}"/>
+        <Button Content="Adminstrer bookinger"
+                Grid.Column="4"
+                FontSize="14"
+                Command="{Binding ManageRentalViewCommand}"/>    
 
         <!-- Page content -->
         <ContentControl
