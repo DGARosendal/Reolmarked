@@ -5,45 +5,54 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Reolmarked.UI.Views"
         mc:Ignorable="d"
-        Title="Middelby Reolmarked" Height="600" Width="1100">
+        Title="MainWindow" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        
+        <!-- Navigationbar -->
+        
+        <!-- When adding new usercontrol:
+              1. Add in App.xaml
+              2. In MainViewModel.cs - Add Relaycommand that sets CurrentView to new usercontrol
+              3. Add new reposiories in MainWindow.xaml.cs
+        -->
 
-        <!-- Top navigation bar -->
-        <TextBlock Text="Middelby Reolmarked"
+        <TextBlock Text="Middelby Reolmarked" 
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
+                   TextWrapping="Wrap"
+                   TextAlignment="Center"
                    FontFamily="Arial Black"
                    FontSize="16"
-                   Grid.Column="0"/>
-
-        <Button Content="Book reoler"
+                   />
+        <Button Content="Reoler"
                 Grid.Column="1"
                 FontSize="14"
-                Command="{Binding RentalViewCommand}"/>
-        <Button Content="Reoler"
+                Command="{Binding ShelfViewCommand}"
+        />
+        <Button Content="ReolLejer"
                 Grid.Column="2"
                 FontSize="14"
-                Command="{Binding ShelfViewCommand}"/>
-        <Button Content="ReolLejer"
-                Grid.Column="3"
-                FontSize="14"
-                Command="{Binding ShelfRenterViewCommand}"/>
+                Command="{Binding ShelfRenterViewCommand}"
+        />
 
-        <!-- Page content -->
-        <ContentControl
-            Grid.Row="1"
+
+        <!-- Page -->
+        <ContentControl 
+            Grid.Row="1" 
             Grid.ColumnSpan="5"
-            Content="{Binding CurrentView}"/>
+            Margin="0"
+            Content="{Binding CurrentView}">
+        </ContentControl>
     </Grid>
 </Window>

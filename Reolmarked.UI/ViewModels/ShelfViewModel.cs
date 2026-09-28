@@ -19,8 +19,8 @@ namespace Reolmarked.UI.ViewModels
         public List<Status> StatusOptions { get; } = Enum.GetValues(typeof(Status)).Cast<Status>().ToList();
         public List<Configuration> ConfigurationOptions { get; } = Enum.GetValues(typeof(Configuration)).Cast<Configuration>().ToList();
 
-        private Shelf? _selectedShelf;
-        public Shelf? SelectedShelf
+        private Shelf _selectedShelf;
+        public Shelf SelectedShelf
         {
             get => _selectedShelf;
             set
@@ -81,9 +81,7 @@ namespace Reolmarked.UI.ViewModels
             LoadShelves();
         }
 
-        // Fetches every shelf from the database.
-        // Made public so MainViewModel can refresh the list when navigating here.
-        public void LoadShelves()
+        private void LoadShelves()
         {
             Shelves.Clear();
             var shelvesFromDb = _shelfRepository.GetAll();
@@ -93,7 +91,7 @@ namespace Reolmarked.UI.ViewModels
             }
         }
 
-        private void SelectShelf(object? parameter)
+        private void SelectShelf(object parameter)
         {
             if (parameter is Shelf shelf)
             {
@@ -101,17 +99,17 @@ namespace Reolmarked.UI.ViewModels
             }
         }
 
-        private bool CanUpdate(object? parameter)
+        private bool CanUpdate(object parameter)
         {
             return SelectedShelf != null;
         }
 
-        private bool CanDelete(object? parameter)
+        private bool CanDelete(object parameter)
         {
             return Shelves.Any();
         }
 
-        private void AddShelf(object? parameter)
+        private void AddShelf(object parameter)
         {
             try
             {
@@ -133,7 +131,7 @@ namespace Reolmarked.UI.ViewModels
             }
         }
 
-        private void UpdateShelf(object? parameter)
+        private void UpdateShelf(object parameter)
         {
             try
             {
@@ -159,7 +157,7 @@ namespace Reolmarked.UI.ViewModels
             }
         }
 
-        private void DeleteShelf(object? parameter)
+        private void DeleteShelf(object parameter)
         {
             try
             {
