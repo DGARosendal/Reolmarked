@@ -13,8 +13,5 @@
         <DataTemplate DataType="{x:Type viewmodel:ShelfRenterViewModel}">
             <view:ShelfRenterView/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type viewmodel:RentalViewModel}">
-            <view:RentalView/>
-        </DataTemplate>
     </Application.Resources>
 </Application>
