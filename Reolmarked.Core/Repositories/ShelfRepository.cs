@@ -58,30 +58,18 @@ namespace Reolmarked.Core.Repositories
             }
         }
 
+        // Deletes the shelf row. No reseeding — we keep the identity counter as-is
+        // so foreign keys in RENTAL still point to the correct shelf.
         public void Delete(int shelfNumber)
         {
-            // 1. Delete the specified shelf row
-            string deleteSql = @"DELETE FROM dbo.SHELF WHERE ShelfNumber = @ShelfNumber;";
-
-            // 2. Reseed the IDENTITY column to the highest remaining ShelfNumber (or 0 if table is empty)
-            string reseedSql = @"
-                DECLARE @maxId INT = (SELECT ISNULL(MAX(ShelfNumber), 0) FROM dbo.SHELF);
-                DBCC CHECKIDENT ('dbo.SHELF', RESEED, @maxId);";
+            string sql = @"DELETE FROM dbo.SHELF WHERE ShelfNumber = @ShelfNumber;";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
+                SqlCommand command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@ShelfNumber", shelfNumber);
                 connection.Open();
-
-                using (SqlCommand deleteCmd = new SqlCommand(deleteSql, connection))
-                {
-                    deleteCmd.Parameters.AddWithValue("@ShelfNumber", shelfNumber);
-                    deleteCmd.ExecuteNonQuery();
-                }
-
-                using (SqlCommand reseedCmd = new SqlCommand(reseedSql, connection))
-                {
-                    reseedCmd.ExecuteNonQuery();
-                }
+                command.ExecuteNonQuery();
             }
         }
 
