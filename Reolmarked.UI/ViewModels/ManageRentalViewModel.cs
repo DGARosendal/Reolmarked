@@ -12,10 +12,12 @@ namespace Reolmarked.UI.ViewModels
 {
     public class ManageRentalViewModel : ViewModelBase
     {
-        // Repositories
+        // -----  Repositories  -----
         private readonly IRentalRepository _rentalRepository;
         private readonly IShelfRepository _shelfRepository;
         private readonly IShelfRenterRepository _renterRepository;
+
+        // -----  For DataGrid  -----
 
         // Collection of Rentals
         public ObservableCollection<Rental> Rentals { get; set; }
@@ -51,9 +53,8 @@ namespace Reolmarked.UI.ViewModels
             }
         }
 
-        // Fields
+        // -----  Properties for textboxes  -----
 
-        
         private string _startDate = string.Empty;
         public string StartDate
         {
@@ -102,13 +103,14 @@ namespace Reolmarked.UI.ViewModels
         }
 
 
-        // RelayCommands
+        // -----  RelayCommands  -----
 
         public RelayCommand UpdateCommand { get; set; }
         public RelayCommand TerminateCommand { get; set; }
         public RelayCommand ClearSelectionCommand { get; set; }
 
 
+        // -----  ctor with repositories  -----
         public ManageRentalViewModel(
             IRentalRepository rentalRepository,
             IShelfRepository shelfRepository,
@@ -130,8 +132,9 @@ namespace Reolmarked.UI.ViewModels
             LoadRentals();
         }
 
-        // Execute commands
+        // -----  Execute commands  -----
 
+        // Clear all textboxes
         private void ClearSelection()
         {
             StartDate = string.Empty;
@@ -144,11 +147,13 @@ namespace Reolmarked.UI.ViewModels
             SelectedRental = null;
         }
 
+        // Terminate rental
+        // OBS: Does not delete the record, ONLY sets Shelf to "Opsagt"
         private void Terminate()
         {
             if (SelectedRental == null)
             {
-                throw new NotImplementedException();
+                throw new Exception("CanTerminate() not triggered.");
             }
 
             DateTime dt = DateTime.Today;
@@ -166,32 +171,42 @@ namespace Reolmarked.UI.ViewModels
             MessageBoxResult messageResult = MessageBox.Show(terminateMessage, "Opsig reol", MessageBoxButton.YesNo);
             if (messageResult == MessageBoxResult.Yes)
             {
-                // Note:Does not delete the record, ONLY sets Shelf to "Opsagt"
+                // OBS: Does not delete the record, ONLY sets Shelf to "Opsagt"
                 Shelf oldShelf = _shelfRepository.GetById(SelectedRental.ShelfNumber);
                 _shelfRepository.Update(new Shelf(oldShelf.ShelfNumber, oldShelf.Configuration, Core.Models.Status.Opsagt));
             }
         }
 
+        // Update rental = Delete and create new, because ShelfNumber is PK
         private void Update()
         {
             if (ShelfNumber == null || SelectedRental == null)
             {
-                throw new NotImplementedException();
+                throw new Exception("CanUpdate() not triggered.");
             }
-            // Update old shelf in repository
-            Shelf oldShelf = _shelfRepository.GetById(SelectedRental.ShelfNumber);
-            _shelfRepository.Update(new Shelf(oldShelf.ShelfNumber, oldShelf.Configuration, Core.Models.Status.Ledig));
-            // Update new shelf in repository
-            _shelfRepository.Update(new Shelf((int)ShelfNumber, _shelfRepository.GetById((int)ShelfNumber).Configuration, Core.Models.Status.Booket));
 
-            // Update rental - Delete and create new because ShelfNumber is PK
-            Rental newRental = new Rental((int)ShelfNumber, DateTime.Today, SelectedRental.RenterId, SelectedRental.UserId);
-            _rentalRepository.Delete(SelectedRental.ShelfNumber);
-            _rentalRepository.Add(newRental);
+            if (_shelfRepository.GetById((int)ShelfNumber).Status != Core.Models.Status.Ledig)
+            {
+                MessageBox.Show($"Reol nr. {(int)ShelfNumber} er ikke ledig. Vælg en anden.", "Fejl");
+            }
+            else
+            {
+                // Update old shelf in repository
+                Shelf oldShelf = _shelfRepository.GetById(SelectedRental.ShelfNumber);
+                _shelfRepository.Update(new Shelf(oldShelf.ShelfNumber, oldShelf.Configuration, Core.Models.Status.Ledig));
+                // Update new shelf in repository
+                _shelfRepository.Update(new Shelf((int)ShelfNumber, _shelfRepository.GetById((int)ShelfNumber).Configuration, Core.Models.Status.Booket));
+
+                // Update rental - Delete and create new because ShelfNumber is PK
+                Rental newRental = new Rental((int)ShelfNumber, DateTime.Today, SelectedRental.RenterId, SelectedRental.UserId);
+                _rentalRepository.Delete(SelectedRental.ShelfNumber);
+                _rentalRepository.Add(newRental);
+            }
         }
 
-        // CanExecute commands
+        // -----  CanExecute commands  -----
 
+        // CanUpdate when ShelfNumber, SelectedRental != null
         private bool CanUpdate()
         {
             if (SelectedRental == null || ShelfNumber == null)
@@ -201,6 +216,7 @@ namespace Reolmarked.UI.ViewModels
             return true;
         }
 
+        // CanTerminate when SelectedRental != null
         private bool CanTerminate()
         {
             if (SelectedRental == null)
@@ -209,6 +225,8 @@ namespace Reolmarked.UI.ViewModels
             }
             return true;
         }
+
+        // -----  public commands  -----
 
         // Fetches every shelf from the database.
         // Made public so MainViewModel can refresh the list when navigating here.
