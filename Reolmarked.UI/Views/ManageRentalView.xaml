@@ -110,24 +110,18 @@
                 </Grid.RowDefinitions>
 
                 <DataGrid Grid.Row="0"
-                          ItemsSource="{Binding Rentals}"
-                          SelectedItem="{Binding SelectedRental}"
+                          ItemsSource="{Binding RentalRecords}"
+                          SelectedItem="{Binding SelectedRentalRecord}"
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
                           SelectionMode="Single">
                     <DataGrid.Columns>
-                        <!--  Later use                        
                         <DataGridTextColumn Header="Fornavn" Binding="{Binding FirstName}" Width="*" />
                         <DataGridTextColumn Header="Efternavn" Binding="{Binding LastName}" Width="*" />
                         <DataGridTextColumn Header="Tlf. nr." Binding="{Binding PhoneNumber}" Width="70" />                        
                         <DataGridTextColumn Header="Reol nr." Binding="{Binding ShelfNumber}" Width="50" />
                         <DataGridTextColumn Header="Konfiguration" Binding="{Binding Configuration}" Width="*" />
                         <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" />
-                        -->                     
-                        <DataGridTextColumn Header="Reol nr." Binding="{Binding ShelfNumber}" Width="*" />
-                        <DataGridTextColumn Header="Start dato" Binding="{Binding StartDate, StringFormat='d'}" Width="*" />
-                        <DataGridTextColumn Header="Reollejer id" Binding="{Binding RenterId}" Width="*" />
-                        <DataGridTextColumn Header="User id" Binding="{Binding UserId}" Width="*" />
                     </DataGrid.Columns>
                 </DataGrid>
 

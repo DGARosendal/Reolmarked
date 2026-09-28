@@ -67,7 +67,7 @@ namespace Reolmarked.UI.ViewModels
 
             ManageRentalViewCommand = new RelayCommand(o =>
             {
-                ManageRentalVM.LoadRentals();
+                ManageRentalVM.LoadRentalRecords();
                 CurrentView = ManageRentalVM;
             });
         }
