@@ -15,4 +15,7 @@ public abstract class IntegrationTestBase
     {
         _repository = new ShelfRepository(connectionString: _testConnetionString);
     }
+
+
+
 }

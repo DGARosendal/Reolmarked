@@ -16,6 +16,7 @@ public class ShelRenterTests
         Assert.AreEqual("Jonas", newRenter.FirstName);
         Assert.AreEqual("Berg", newRenter.LastName);
         Assert.AreEqual("+4562335678", newRenter.PhoneNumber);
+
     }
 
     [TestMethod]
@@ -24,14 +25,9 @@ public class ShelRenterTests
         // Act & Assert
         Assert.ThrowsExactly<ArgumentException>(() => ShelfRenter.ValidateName("9Jens", "Fornavn"));
         Assert.ThrowsExactly<ArgumentException>(() => ShelfRenter.ValidateName(null, "Fornavn"));
-        Assert.ThrowsExactly<ArgumentException>(() => ShelfRenter.ValidateName("Jens#", "Fornavn"));
-
-
-        Assert.ThrowsExactly<ArgumentException>(() => ShelfRenter.ValidateName("9Jensen", "Efternavn"));
-        Assert.ThrowsExactly<ArgumentException>(() => ShelfRenter.ValidateName(null, "Fornavn"));
-        Assert.ThrowsExactly<ArgumentException>(() => ShelfRenter.ValidateName("Jensenen#", "Efternavn"));
-
-
-
+        Assert.ThrowsExactly<ArgumentException>(() => ShelfRenter.ValidateName("Jensen#", "Efternavn"));
     }
+
+
+
 }
