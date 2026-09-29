@@ -14,6 +14,7 @@ namespace Reolmarked.Core.Repositories
             _connectionString = @"Server=localhost;Database=ReolmarkedDb;Trusted_Connection=True;TrustServerCertificate=True;";
         }
 
+        #region ============= CRUD =============
         public void Add(ShelfRenter renter)
         {
             string sql = @"INSERT INTO dbo.SHELFRENTER (FirstName, LastName, PhoneNumber)
@@ -114,6 +115,15 @@ namespace Reolmarked.Core.Repositories
             return renters;
         }
 
+
+        #endregion
+
+
+        /// <summary>
+        /// Method uses SQL string to get Renter by its Id. 
+        /// </summary>
+        /// <param name="renterId"></param>
+        /// <returns></returns>
         public ShelfRenter GetById(int renterId)
         {
             string sql = "SELECT RenterId, FirstName, LastName, PhoneNumber FROM dbo.SHELFRENTER WHERE RenterId = @RenterId;";
@@ -135,6 +145,11 @@ namespace Reolmarked.Core.Repositories
             return null;
         }
 
+        /// <summary>
+        /// Maps data from query to Renter class creating and returning a new Shelfrenter object.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
         private ShelfRenter MapRenter(SqlDataReader reader)
         {
             return new ShelfRenter(

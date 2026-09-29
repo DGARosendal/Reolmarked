@@ -101,10 +101,11 @@ namespace Reolmarked.Core.Models
 
 
 
+
         // Used by both FirstName and LastName since the rule is the same.
         // "fieldName" is just the word we show in the error message (either "Fornavn" or "Efternavn").
         // Returns the trimmed and validated name as a string, which we utilize in our setters in our properties above.
-        private static string ValidateName(string name, string fieldName)
+        public static string ValidateName(string name, string fieldName)
         {
             // Catches null, empty text, and text with only spaces.
             if (string.IsNullOrWhiteSpace(name))
@@ -113,6 +114,8 @@ namespace Reolmarked.Core.Models
                 // empty, and that it must be filled in.
                 throw new ArgumentException(fieldName + " må ikke være tomt.");
             }
+
+            
 
             // Removes spaces at the start/end before we count the length.
             // This way we don't have to tell the user that "  Anne-Marie  " is too
