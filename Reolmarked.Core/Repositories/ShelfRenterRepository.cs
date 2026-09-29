@@ -58,37 +58,16 @@ namespace Reolmarked.Core.Repositories
             }
         }
 
+        // Deletes the renter row. No TRUNCATE — we keep the identity counter as-is
+        // so foreign keys in RENTAL still point to the correct renter.
         public void Delete(int renterId)
         {
-            string sql = @"
-            BEGIN TRANSACTION;
-
-            -- 1. Slet den valgte reollejer
-            DELETE FROM dbo.SHELFRENTER WHERE RenterId = @RenterId;
-
-            -- 2. Gem de resterende reollejere i en midlertidig tabel i ID-rækkefølge
-            SELECT FirstName, LastName, PhoneNumber
-            INTO #TempRenters
-            FROM dbo.SHELFRENTER
-            ORDER BY RenterId;
-
-            -- 3. Tøm tabellen (dette nulstiller IDENTITY-tælleren til 1)
-            TRUNCATE TABLE dbo.SHELFRENTER;
-
-            -- 4. Genindsæt alle reollejere så de tildeles fortløbende ID'er (1, 2, 3...)
-            INSERT INTO dbo.SHELFRENTER (FirstName, LastName, PhoneNumber)
-            SELECT FirstName, LastName, PhoneNumber
-            FROM #TempRenters;
-
-            DROP TABLE #TempRenters;
-
-            COMMIT TRANSACTION;";
+            string sql = @"DELETE FROM dbo.SHELFRENTER WHERE RenterId = @RenterId;";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 SqlCommand command = new SqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@RenterId", renterId);
-
                 connection.Open();
                 command.ExecuteNonQuery();
             }
