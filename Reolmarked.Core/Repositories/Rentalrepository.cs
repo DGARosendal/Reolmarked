@@ -29,8 +29,8 @@ namespace Reolmarked.Core.Repositories
         {
             // The @ before the quote makes this a verbatim string (keeps line breaks).
             // The @ inside the SQL marks parameters, filled in below via AddWithValue.
-            string sql = @"INSERT INTO dbo.RENTAL (ShelfNumber, StartDate, RenterId, UserId)
-               VALUES (@ShelfNumber, @StartDate, @RenterId, @UserId);";
+            string sql = @"INSERT INTO dbo.RENTAL (ShelfNumber, StartDate, RenterId)
+               VALUES (@ShelfNumber, @StartDate, @RenterId);";
 
             // using closes the connection automatically when the block ends.
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -47,9 +47,6 @@ namespace Reolmarked.Core.Repositories
 
                 // RenterId points to an existing renter in the SHELFRENTER table in our code.
                 command.Parameters.AddWithValue("@RenterId", rental.RenterId);
-
-                // UserId is the employee who created this rental (for auditing) in our code.
-                command.Parameters.AddWithValue("@UserId", rental.UserId);
 
                 // Open the connection right before we need it.
                 connection.Open();
@@ -72,8 +69,7 @@ namespace Reolmarked.Core.Repositories
             // updating all shelves. 
             string sql = @"UPDATE dbo.RENTAL
                            SET StartDate = @StartDate,
-                               RenterId  = @RenterId,
-                               UserId    = @UserId
+                               RenterId  = @RenterId
                            WHERE ShelfNumber = @ShelfNumber;";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -82,7 +78,6 @@ namespace Reolmarked.Core.Repositories
                 command.Parameters.AddWithValue("@ShelfNumber", rental.ShelfNumber);
                 command.Parameters.AddWithValue("@StartDate", rental.StartDate);
                 command.Parameters.AddWithValue("@RenterId", rental.RenterId);
-                command.Parameters.AddWithValue("@UserId", rental.UserId);
 
                 connection.Open();
                 command.ExecuteNonQuery();
@@ -118,10 +113,10 @@ namespace Reolmarked.Core.Repositories
             // We initialize a list of rentals to work with in the code that can hold all the rentals we get.
             List<Rental> rentals = new List<Rental>();
 
-            // The data we want to select is the data in the columns ShelfNumber, StartDate,
-            // RenterId and UserId from the RENTAL table, i.e. we want the full RENTAL entry
+            // The data we want to select is the data in the columns ShelfNumber, StartDate
+            // and RenterId from the RENTAL table, i.e. we want the full RENTAL entry
             // from the database, which we will gather by iterating below.
-            string sql = "SELECT ShelfNumber, StartDate, RenterId, UserId FROM dbo.RENTAL;";
+            string sql = "SELECT ShelfNumber, StartDate, RenterId FROM dbo.RENTAL;";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -150,7 +145,7 @@ namespace Reolmarked.Core.Repositories
         public Rental GetByShelfNumber(int shelfNumber)
         {
             // We select the data we need from the RENTAL table based on the shelfNumber-parameter from above.
-            string sql = "SELECT ShelfNumber, StartDate, RenterId, UserId FROM dbo.RENTAL WHERE ShelfNumber = @ShelfNumber;";
+            string sql = "SELECT ShelfNumber, StartDate, RenterId FROM dbo.RENTAL WHERE ShelfNumber = @ShelfNumber;";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -173,7 +168,7 @@ namespace Reolmarked.Core.Repositories
         public List<Rental> GetByRenterId(int renterId)
         {
             List<Rental> rentals = new List<Rental>();
-            string sql = "SELECT ShelfNumber, StartDate, RenterId, UserId FROM dbo.RENTAL WHERE RenterId = @RenterId;";
+            string sql = "SELECT ShelfNumber, StartDate, RenterId FROM dbo.RENTAL WHERE RenterId = @RenterId;";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -200,8 +195,7 @@ namespace Reolmarked.Core.Repositories
             return new Rental(
                 Convert.ToInt32(reader["ShelfNumber"]),
                 Convert.ToDateTime(reader["StartDate"]),
-                Convert.ToInt32(reader["RenterId"]),
-                Convert.ToInt32(reader["UserId"])
+                Convert.ToInt32(reader["RenterId"])
             );
         }
     }

@@ -13,7 +13,6 @@ namespace Reolmarked.Core.Models
         private int _shelfNumber;
         private DateTime _startDate;
         private int _renterId;
-        private int _userId;
 
         // Represents the shelf (reol) being rented. This is a positive
         // integer and matches the ShelfNumber of an existing Shelf (already gets 
@@ -42,6 +41,14 @@ namespace Reolmarked.Core.Models
                     throw new ArgumentException("Startdato er ikke angivet korrekt. Vælg venligst en gyldig dato.");
                 }
 
+                // Business rule validation: a booking may only start on the 1st of a month.
+                // Without this, the user could book from e.g. the 14th, which conflicts with
+                // the agreement about monthly billing.
+                if (value.Day != 1)
+                {
+                    throw new ArgumentException("A booking must start on the 1st of a month.");
+                }
+
                 _startDate = value;
             }
         }
@@ -54,22 +61,13 @@ namespace Reolmarked.Core.Models
             set { _renterId = value; }
         }
 
-        // Represents the employee who created the rental. Useful for
-        // auditing: "who booked this shelf?".
-        public int UserId
-        {
-            get { return _userId; }
-            set { _userId = value; }
-        }
-
-        // When we create a new Rental, all four values must be given as
+        // When we create a new Rental, all three values must be given as
         // parameters in the constructor.
-        public Rental(int shelfNumber, DateTime startDate, int renterId, int userId)
+        public Rental(int shelfNumber, DateTime startDate, int renterId)
         {
             ShelfNumber = shelfNumber;
             StartDate = startDate;
             RenterId = renterId;
-            UserId = userId;
         }
     }
 }

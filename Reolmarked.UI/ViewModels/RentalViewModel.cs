@@ -263,6 +263,17 @@ namespace Reolmarked.UI.ViewModels
             // the parameter happened to be something else.
             if (parameter is Shelf shelf)
             {
+                // Only available shelves can be booked. UdeAfDrift and Opsagt are not available.
+                if (shelf.Status != Status.Ledig)
+                {
+                    MessageBox.Show(
+                        $"Reol {shelf.ShelfNumber} kan ikke bookes, fordi den har status '{shelf.Status}'. " +
+                        "Kun ledige reoler kan bookes.",
+                        "Reol kan ikke bookes",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
                 SelectedShelf = shelf;
             }
         }
@@ -271,9 +282,12 @@ namespace Reolmarked.UI.ViewModels
 
         // Book button is only active when both a shelf and a renter are picked.
         // WPF checks this automatically whenever RaiseCanExecuteChanged fires.
+        // SelectedShelf.Status == Status.Ledig makes sure that we only can book shelves that
+        // are available (so out of commission-shelves, soon to be available-shelves and
+        // already booked-shelves ones are not book-able).
         private bool CanBook(object? parameter)
         {
-            return SelectedShelf != null && SelectedRenter != null;
+            return SelectedShelf != null && SelectedRenter != null && SelectedShelf.Status == Status.Ledig; ;
         }
 
         // Opens the confirmation popup. Nothing is saved until Bekræft is clicked.
@@ -292,14 +306,23 @@ namespace Reolmarked.UI.ViewModels
                 // but we guard here too, in case ConfirmBooking is ever called another way.
                 if (SelectedShelf == null || SelectedRenter == null) return;
 
-                // !! REPLACE THIS WHEN WE GET TO THE "Månedsopgørelse" UC requiring a proper UserId !!
-                // 1. Build the Rental object. UserId = 1 (hardcoded for now).
-                // Replace with the current employee ID once a login exists.
+                // In case ConfirmBooking should ever be called from a context other than the
+                // Book button, then we also catch an attempt to book an unavailable shelf here.
+                if (SelectedShelf.Status != Status.Ledig)
+                {
+                    MessageBox.Show(
+                        $"Reol {SelectedShelf.ShelfNumber} kan ikke bookes, fordi den har status '{SelectedShelf.Status}'.",
+                        "Reol kan ikke bookes",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                // 1. Build the Rental object.
                 var rental = new Rental(
                     SelectedShelf.ShelfNumber,
                     StartDate,
-                    SelectedRenter.RenterId,
-                    1);
+                    SelectedRenter.RenterId);
 
                 // 2. Insert the new rental into the RENTAL table.
                 _rentalRepository.Add(rental);
