@@ -27,7 +27,7 @@
                    FontSize="16"
                    Grid.Column="0"/>
 
-        <Button Content="Book reoler"
+        <Button Content="Udlej reoler"
                 Grid.Column="1"
                 FontSize="14"
                 Command="{Binding RentalViewCommand}"/>
@@ -39,7 +39,7 @@
                 Grid.Column="3"
                 FontSize="14"
                 Command="{Binding ShelfRenterViewCommand}"/>
-        <Button Content="Adminstrer bookinger"
+        <Button Content="Adminstrer udlejninger"
                 Grid.Column="4"
                 FontSize="14"
                 Command="{Binding ManageRentalViewCommand}"/>    

@@ -53,11 +53,11 @@
             <Border Grid.Column="0" BorderBrush="Black" BorderThickness="2" Padding="15" Background="White">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <TextBlock Text="Booking Oplysninger" FontSize="18" FontWeight="Bold" Margin="0,0,0,5" />
+                        <TextBlock Text="Oplysninger for leje" FontSize="18" FontWeight="Bold" Margin="0,0,0,5" />
 
                         <!-- Formular til Startdato -->
 
-                        <TextBlock Text="Startdato for lejemål:" FontWeight="SemiBold" Margin="0,5,0,2" />
+                        <TextBlock Text="Startdato for leje:" FontWeight="SemiBold" Margin="0,5,0,2" />
                         <TextBox Text="{Binding StartDate, UpdateSourceTrigger=PropertyChanged, StringFormat='d'}" 
                                  IsReadOnly="True" Background="LightGray" 
                                  Margin="0,0,0,10" />
