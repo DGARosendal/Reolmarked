@@ -20,7 +20,7 @@ namespace Reolmarked.UI.ViewModels
         // -----  For DataGrid  -----
 
         // Collection of Rentals
-        public record RentalRecord(int RenterId, int UserId, DateTime StartDate, string FirstName, string LastName, string PhoneNumber, int ShelfNumber, Configuration Configuration, Status Status);
+        public record RentalRecord(int RenterId, DateTime StartDate, string FirstName, string LastName, string PhoneNumber, int ShelfNumber, Configuration Configuration, Status Status);
         public ObservableCollection<RentalRecord> RentalRecords { get; set; }
 
         // Selected Rental
@@ -202,7 +202,7 @@ namespace Reolmarked.UI.ViewModels
                 _shelfRepository.Update(newShelf);
 
                 // Update rental in repository - Delete and create new because ShelfNumber is PK
-                Rental newRental = new Rental((int)ShelfNumber, DateTime.Today, SelectedRentalRecord.RenterId, SelectedRentalRecord.UserId);
+                Rental newRental = new Rental((int)ShelfNumber, DateTime.Today, SelectedRentalRecord.RenterId);
                 _rentalRepository.Delete(SelectedRentalRecord.ShelfNumber);
                 _rentalRepository.Add(newRental);
 
@@ -252,7 +252,7 @@ namespace Reolmarked.UI.ViewModels
             {
                 var rentalShelf = _shelfRepository.GetById(rental.ShelfNumber);
                 var rentalRenter = _renterRepository.GetById(rental.RenterId);
-                RentalRecords.Add(new RentalRecord(rental.RenterId, rental.UserId ,rental.StartDate,rentalRenter.FirstName, rentalRenter.LastName, rentalRenter.PhoneNumber, rental.ShelfNumber, rentalShelf.Configuration, rentalShelf.Status));
+                RentalRecords.Add(new RentalRecord(rental.RenterId,rental.StartDate,rentalRenter.FirstName, rentalRenter.LastName, rentalRenter.PhoneNumber, rental.ShelfNumber, rentalShelf.Configuration, rentalShelf.Status));
             }
         }
     }
