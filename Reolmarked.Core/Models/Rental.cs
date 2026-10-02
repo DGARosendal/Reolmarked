@@ -14,7 +14,6 @@ namespace Reolmarked.Core.Models
         private DateTime _startDate;
         private int _renterId;
 
-        private DateTime? _endDate;
 
         // Represents the shelf (reol) being rented. This is a positive
         // integer and matches the ShelfNumber of an existing Shelf (already gets 
@@ -63,20 +62,6 @@ namespace Reolmarked.Core.Models
             set { _renterId = value; }
         }
 
-        public DateTime? EndDate
-        {
-            get { return _endDate; }
-            set
-            {
-                if (value == DateTime.MinValue)
-                {
-                    throw new ArgumentException("Slutdato er ikke angivet korrekt. Vælg venligst en gyldig dato.");
-                }
-
-                _endDate = value;
-            }
-        }
-
         // When we create a new Rental, all three values must be given as
         // parameters in the constructor.
         public Rental(int shelfNumber, DateTime startDate, int renterId)
@@ -86,21 +71,6 @@ namespace Reolmarked.Core.Models
             RenterId = renterId;
         }
         
-        /// <summary>
-        /// Constructor with endDate
-        /// </summary>
-        /// <param name="shelfNumber"></param>
-        /// <param name="startDate"></param>
-        /// <param name="endDate"></param>
-        /// <param name="renterId"></param>
-        public Rental(int shelfNumber, DateTime startDate, DateTime endDate, int renterId)
-        {
-            ShelfNumber = shelfNumber;
-            StartDate = startDate;
-            RenterId = renterId;
-            EndDate = endDate;
-        }
-
         public static DateTime FindTerminationDate()
         {
             DateTime dt = DateTime.Today;
