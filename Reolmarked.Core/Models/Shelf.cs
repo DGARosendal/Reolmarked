@@ -61,14 +61,12 @@ namespace Reolmarked.Core.Models
                 {
                     throw new ArgumentException("Ugyldig reolstatus.");
                 }
-                // Can't add new Shelf with booked or terminated Status
-                else if (value == Status.Booket || value == Status.Opsagt)
-                {
-                    string status = (value == Status.Booket) ? "booket" : "opsagt";
-                    throw new ArgumentException($"Status kan ikke sættes til {status} på en ny reol.");
-                }
+
+                _status = value;
             }
         }
+
+        
 
         /// <summary>
         /// Setter for field _status.
@@ -95,7 +93,7 @@ namespace Reolmarked.Core.Models
                 string status = (newStatus == Status.Booket) ? "booket" : "opsagt";
                 throw new ArgumentException($"Status kan ikke sættes til {status}.");
             }
-
+            Status = newStatus;
         }
 
         public Shelf(int shelfNumber, Configuration configuration, Status status)
@@ -105,6 +103,26 @@ namespace Reolmarked.Core.Models
             ShelfNumber = shelfNumber;
             Configuration = configuration;
             Status = status;
+        }
+
+        /// <summary>
+        /// Calls Shelf contructor with validation for newly created Shelves
+        /// </summary>
+        /// <param name="shelfNumber"></param>
+        /// <param name="configuration"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static Shelf CreateNewShelf(int shelfNumber, Configuration configuration, Status status)
+        {
+            // Can't add new Shelf with booked or terminated Status
+            if (status == Status.Booket || status == Status.Opsagt)
+            {
+                string statusString = (status == Status.Booket) ? "booket" : "opsagt";
+                throw new ArgumentException($"Status kan ikke sættes til {statusString} på en ny reol.");
+            }
+
+            return new Shelf(shelfNumber, configuration, status);
         }
 
         /// <summary>

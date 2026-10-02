@@ -116,7 +116,8 @@ namespace Reolmarked.UI.ViewModels
             try
             {
                 // Create new shelf with temporary number 1 (DB auto-assigns real ID via SCOPE_IDENTITY)
-                var newShelf = new Shelf(1, Configuration, Status);
+                // Using method CreateNewShelf for extra validation
+                var newShelf = Shelf.CreateNewShelf(1, Configuration, Status);
 
                 _shelfRepository.Add(newShelf);
                 Shelves.Add(newShelf);
