@@ -148,22 +148,11 @@ namespace Reolmarked.UI.ViewModels
         // OBS: Does not delete the record, ONLY sets Shelf to "Opsagt"
         private void Terminate()
         {
-            if (SelectedRentalRecord == null)
-            {
-                throw new Exception("CanTerminate() not triggered.");
-            }
+            // Covered by CanTerminate()
+            if (SelectedRentalRecord == null) return;
 
-            DateTime dt = DateTime.Today;
-            DateTime terminateDate;
-            
-            if (DateTime.Today.Day < 20)
-            {
-                terminateDate = new DateTime(dt.Year,dt.Month,1).AddMonths(1);
-            }
-            else
-            {
-                terminateDate = new DateTime(dt.Year, dt.Month, 1).AddMonths(2);
-            }
+            DateTime terminateDate = Rental.FindTerminationDate();
+
             string terminateMessage = $"Opsig reol {SelectedRentalRecord.ShelfNumber} til d. {terminateDate.ToString("d")}?";
             MessageBoxResult messageResult = MessageBox.Show(terminateMessage, "Opsig reol", MessageBoxButton.YesNo);
             if (messageResult == MessageBoxResult.Yes)
@@ -171,8 +160,10 @@ namespace Reolmarked.UI.ViewModels
                 // OBS: Does not delete the record, ONLY sets Shelf to "Opsagt"
                 // Create new record from SelectedRentalRecord with updated properties
                 RentalRecord updatedRecord = SelectedRentalRecord with { Status = Core.Models.Status.Opsagt };
+
                 // Update shelf in repository
                 _shelfRepository.Update(new Shelf(updatedRecord.ShelfNumber, updatedRecord.Configuration, updatedRecord.Status));
+
                 // Remove old and add new RentalRecord from RentalRecords
                 RentalRecords.Remove(SelectedRentalRecord);
                 RentalRecords.Add(updatedRecord);
@@ -182,10 +173,8 @@ namespace Reolmarked.UI.ViewModels
         // Update rental = Delete and create new, because ShelfNumber is PK
         private void Update()
         {
-            if (ShelfNumber == null || SelectedRentalRecord == null)
-            {
-                throw new Exception("CanUpdate() not triggered.");
-            }
+            // Covered by CanUpdate()
+            if (ShelfNumber == null || SelectedRentalRecord == null) return;
 
             // Check if new shelf for booking is "Ledig"
             if (_shelfRepository.GetById((int)ShelfNumber).Status != Core.Models.Status.Ledig)
@@ -197,6 +186,7 @@ namespace Reolmarked.UI.ViewModels
                 // Update old shelf in shelfRepository
                 Shelf oldShelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
                 _shelfRepository.Update(new Shelf(oldShelf.ShelfNumber, oldShelf.Configuration, Core.Models.Status.Ledig));
+
                 // Update new shelf in shelfRepository
                 Shelf newShelf = new Shelf((int)ShelfNumber, _shelfRepository.GetById((int)ShelfNumber).Configuration, Core.Models.Status.Booket);
                 _shelfRepository.Update(newShelf);

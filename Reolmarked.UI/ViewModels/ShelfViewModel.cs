@@ -113,19 +113,6 @@ namespace Reolmarked.UI.ViewModels
 
         private void AddShelf(object? parameter)
         {
-            // Can't delete shelf that is booked or terminated
-            if (Status == Status.Booket)
-            {
-                MessageBox.Show("Status kan ikke sættes til booket på en ny reol", "Fejl",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            else if (Status == Status.Opsagt)
-            {
-                MessageBox.Show("Status kan ikke sættes til opsagt på en ny reol", "Fejl",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
             try
             {
                 // Create new shelf with temporary number 1 (DB auto-assigns real ID via SCOPE_IDENTITY)
@@ -138,7 +125,6 @@ namespace Reolmarked.UI.ViewModels
                 DeleteCommand.RaiseCanExecuteChanged();
 
             }
-
             catch (Exception ex)
             {
                 MessageBox.Show($"Kunne ikke tilføje reol: {ex.Message}", "Fejl",
@@ -151,38 +137,18 @@ namespace Reolmarked.UI.ViewModels
         {
             try
             {
-                if (SelectedShelf == null) return;
-                
-                // Can't change status of a booked or terminated Shelf
-                if (SelectedShelf.Status != Status && (SelectedShelf.Status == Status.Booket || SelectedShelf.Status == Status.Opsagt))
-                {
-                    string status = (SelectedShelf.Status == Status.Booket) ? "booket" : "opsagt";
-                    MessageBox.Show($"Status kan ikke ændres på en {status} reol", "Fejl",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                // Can't set status of Shelf to booked
-                else if (SelectedShelf.Status != Status && (Status == Status.Booket || Status == Status.Opsagt))
-                {
-                    string status = (Status == Status.Booket) ? "booket" : "opsagt";
-                    MessageBox.Show($"Status kan ikke sættes til {status}.", "Fejl",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else
-                {
-                    SelectedShelf.Status = Status;
-                    SelectedShelf.Configuration = Configuration;
+                SelectedShelf.UpdateStatus(SelectedShelf.Status,Status);
+                SelectedShelf.Configuration = Configuration;
 
-                    _shelfRepository.Update(SelectedShelf);
+                _shelfRepository.Update(SelectedShelf);
 
-                    // Refresh item in list so binding/converter reflects updated status
-                    int index = Shelves.IndexOf(SelectedShelf);
-                    if (index >= 0)
-                    {
-                        Shelves[index] = null;
-                        Shelves[index] = SelectedShelf;
-                    }
+                // Refresh item in list so binding/converter reflects updated status
+                int index = Shelves.IndexOf(SelectedShelf);
+                if (index >= 0)
+                {
+                    Shelves[index] = null;
+                    Shelves[index] = SelectedShelf;
                 }
-                
             }
             catch (Exception ex)
             {
@@ -199,30 +165,25 @@ namespace Reolmarked.UI.ViewModels
                 var lastShelf = Shelves.LastOrDefault();
                 if (lastShelf == null) return;
 
-                // Can't delete shelf that is booked or terminated
-                if (lastShelf.Status == Status.Booket || lastShelf.Status == Status.Opsagt)
+                if (lastShelf.CanBeDeleted())
                 {
-                    MessageBox.Show($"Kunne ikke slette reol: {lastShelf.ShelfNumber}, da den er booket.", "Fejl",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
+                    var result = MessageBox.Show(
+                        $"Er du sikker på, at du vil slette den sidste reol (Reol nr. {lastShelf.ShelfNumber})?",
+                        "Bekræft sletning", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-                var result = MessageBox.Show(
-                    $"Er du sikker på, at du vil slette den sidste reol (Reol nr. {lastShelf.ShelfNumber})?",
-                    "Bekræft sletning", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (result != MessageBoxResult.Yes)
+                        return;
 
-                if (result != MessageBoxResult.Yes)
-                    return;
+                    _shelfRepository.Delete(lastShelf.ShelfNumber);
+                    Shelves.Remove(lastShelf);
 
-                _shelfRepository.Delete(lastShelf.ShelfNumber);
-                Shelves.Remove(lastShelf);
+                    if (SelectedShelf == lastShelf)
+                    {
+                        ClearSelection();
+                    }
 
-                if (SelectedShelf == lastShelf)
-                {
-                    ClearSelection();
-                }
-
-                DeleteCommand.RaiseCanExecuteChanged();
+                    DeleteCommand.RaiseCanExecuteChanged();
+                }                
             }
             catch (Exception ex)
             {

@@ -61,9 +61,41 @@ namespace Reolmarked.Core.Models
                 {
                     throw new ArgumentException("Ugyldig reolstatus.");
                 }
-
-                _status = value;
+                // Can't add new Shelf with booked or terminated Status
+                else if (value == Status.Booket || value == Status.Opsagt)
+                {
+                    string status = (value == Status.Booket) ? "booket" : "opsagt";
+                    throw new ArgumentException($"Status kan ikke sættes til {status} på en ny reol.");
+                }
             }
+        }
+
+        /// <summary>
+        /// Setter for field _status.
+        /// Throws exception if change in Status is invalid.
+        /// </summary>
+        /// <param name="oldStatus"></param>
+        /// <param name="newStatus"></param>
+        public void UpdateStatus(Status oldStatus, Status newStatus)
+        {
+            // Same check as for Configuration above.
+            if (!Enum.IsDefined(typeof(Status), newStatus))
+            {
+                throw new ArgumentException("Ugyldig reolstatus.");
+            }
+            // Can't change status of a booked or terminated Shelf
+            else if (oldStatus != newStatus && (oldStatus == Status.Booket || oldStatus == Status.Opsagt))
+            {
+                string status = (oldStatus == Status.Booket) ? "booket" : "opsagt";
+                throw new ArgumentException($"Status kan ikke ændres på en {status} reol");
+            }
+            // Can't set status of Shelf to booked
+            else if (oldStatus != newStatus && (newStatus == Status.Booket || newStatus == Status.Opsagt))
+            {
+                string status = (newStatus == Status.Booket) ? "booket" : "opsagt";
+                throw new ArgumentException($"Status kan ikke sættes til {status}.");
+            }
+
         }
 
         public Shelf(int shelfNumber, Configuration configuration, Status status)
@@ -73,6 +105,23 @@ namespace Reolmarked.Core.Models
             ShelfNumber = shelfNumber;
             Configuration = configuration;
             Status = status;
+        }
+
+        /// <summary>
+        /// Check if Shelf is valid for deletion
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public bool CanBeDeleted()
+        {
+            // Can't delete shelf that is booked or terminated
+            if (Status == Status.Booket ||  Status == Status.Opsagt)
+            {
+                string status = (Status == Status.Booket) ? "booket" : "opsagt";
+                throw new InvalidOperationException($"Man kan ikke slette en {status} reol.");
+            }
+
+            return true;
         }
     }
 }
