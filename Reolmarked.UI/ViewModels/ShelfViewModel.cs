@@ -116,7 +116,8 @@ namespace Reolmarked.UI.ViewModels
             try
             {
                 // Create new shelf with temporary number 1 (DB auto-assigns real ID via SCOPE_IDENTITY)
-                var newShelf = new Shelf(1, Configuration, Status);
+                // Using method CreateNewShelf for extra validation
+                var newShelf = Shelf.CreateNewShelf(1, Configuration, Status);
 
                 _shelfRepository.Add(newShelf);
                 Shelves.Add(newShelf);
@@ -125,7 +126,6 @@ namespace Reolmarked.UI.ViewModels
                 DeleteCommand.RaiseCanExecuteChanged();
 
             }
-
             catch (Exception ex)
             {
                 MessageBox.Show($"Kunne ikke tilføje reol: {ex.Message}", "Fejl",
@@ -133,13 +133,12 @@ namespace Reolmarked.UI.ViewModels
             }
         }
 
+
         private void UpdateShelf(object? parameter)
         {
             try
             {
-                if (SelectedShelf == null) return;
-
-                SelectedShelf.Status = Status;
+                SelectedShelf.UpdateStatus(SelectedShelf.Status,Status);
                 SelectedShelf.Configuration = Configuration;
 
                 _shelfRepository.Update(SelectedShelf);
@@ -159,6 +158,7 @@ namespace Reolmarked.UI.ViewModels
             }
         }
 
+        
         private void DeleteShelf(object? parameter)
         {
             try
@@ -166,22 +166,25 @@ namespace Reolmarked.UI.ViewModels
                 var lastShelf = Shelves.LastOrDefault();
                 if (lastShelf == null) return;
 
-                var result = MessageBox.Show(
-                    $"Er du sikker på, at du vil slette den sidste reol (Reol nr. {lastShelf.ShelfNumber})?",
-                    "Bekræft sletning", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result != MessageBoxResult.Yes)
-                    return;
-
-                _shelfRepository.Delete(lastShelf.ShelfNumber);
-                Shelves.Remove(lastShelf);
-
-                if (SelectedShelf == lastShelf)
+                if (lastShelf.CanBeDeleted())
                 {
-                    ClearSelection();
-                }
+                    var result = MessageBox.Show(
+                        $"Er du sikker på, at du vil slette den sidste reol (Reol nr. {lastShelf.ShelfNumber})?",
+                        "Bekræft sletning", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-                DeleteCommand.RaiseCanExecuteChanged();
+                    if (result != MessageBoxResult.Yes)
+                        return;
+
+                    _shelfRepository.Delete(lastShelf.ShelfNumber);
+                    Shelves.Remove(lastShelf);
+
+                    if (SelectedShelf == lastShelf)
+                    {
+                        ClearSelection();
+                    }
+
+                    DeleteCommand.RaiseCanExecuteChanged();
+                }                
             }
             catch (Exception ex)
             {
