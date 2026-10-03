@@ -163,38 +163,98 @@ namespace Reolmarked.UI.ViewModels
         {
             if (SelectedRentalRecord == null) return;
 
-            // 1. Calculate termination date on the model instance
-            Rental rental = new Rental(
-                SelectedRentalRecord.RentalId,
-                SelectedRentalRecord.ShelfNumber,
-                SelectedRentalRecord.StartDate,
-                SelectedRentalRecord.EndDate,
-                SelectedRentalRecord.RenterId
-            );
-            rental.SetTerminationDate();
-
-            string displayDate = rental.EndDate?.ToString("d") ?? "Ingen slutdato";
-            string terminateMessage = $"Opsig reol {SelectedRentalRecord.ShelfNumber} til d. {displayDate}?";
-
-            MessageBoxResult messageResult = MessageBox.Show(terminateMessage, "Opsig reol", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (messageResult == MessageBoxResult.Yes)
+            try
             {
-                // 2. Save updated EndDate to SQL Server for matching RentalId
-                _rentalRepository.Update(rental);
+                // 1. Calculate termination date on the model instance
+                Rental rental = new Rental(
+                    SelectedRentalRecord.RentalId,
+                    SelectedRentalRecord.ShelfNumber,
+                    SelectedRentalRecord.StartDate,
+                    SelectedRentalRecord.EndDate,
+                    SelectedRentalRecord.RenterId
+                );
+                rental.SetTerminationDate();
 
-                // 3. Set shelf status to "Opsagt"
-                Shelf shelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
-                if (shelf != null)
+                string displayDate = rental.EndDate?.ToString("d") ?? "Ingen slutdato";
+                string terminateMessage = $"Opsig reol {SelectedRentalRecord.ShelfNumber} til d. {displayDate}?";
+
+                MessageBoxResult messageResult = MessageBox.Show(terminateMessage, "Opsig reol", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (messageResult == MessageBoxResult.Yes)
                 {
-                    shelf.Status = Core.Models.Status.Opsagt;
-                    _shelfRepository.Update(shelf);
+                    // 2. Save updated EndDate to SQL Server for matching RentalId
+                    _rentalRepository.Update(rental);
+
+                    // 3. Set shelf status to "Opsagt"
+                    Shelf? shelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
+                    if (shelf != null)
+                    {
+                        shelf.Status = Core.Models.Status.Opsagt;
+                        _shelfRepository.Update(shelf);
+                    }
+
+                    // 4. Update local record in ObservableCollection
+                    RentalRecord updatedRecord = SelectedRentalRecord with
+                    {
+                        EndDate = rental.EndDate,
+                        Status = Core.Models.Status.Opsagt
+                    };
+
+                    int index = RentalRecords.IndexOf(SelectedRentalRecord);
+                    if (index >= 0)
+                    {
+                        RentalRecords[index] = updatedRecord;
+                    }
+
+                    SelectedRentalRecord = updatedRecord;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Kunne ikke opsige reol: {ex.Message}", "Fejl",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void Update(object? parameter = null)
+        {
+            if (ShelfNumber == null || SelectedRentalRecord == null) return;
+
+            try
+            {
+                Shelf? targetShelf = _shelfRepository.GetById((int)ShelfNumber);
+                if (targetShelf == null || targetShelf.Status != Core.Models.Status.Ledig)
+                {
+                    MessageBox.Show($"Reol nr. {(int)ShelfNumber} er ikke ledig. Vælg en anden.", "Fejl", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
                 }
 
-                // 4. Update local record in ObservableCollection
+                // Update old shelf to "Ledig"
+                Shelf? oldShelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
+                if (oldShelf != null)
+                {
+                    oldShelf.Status = Core.Models.Status.Ledig;
+                    _shelfRepository.Update(oldShelf);
+                }
+
+                // Update target shelf to "Booket"
+                targetShelf.Status = Core.Models.Status.Booket;
+                _shelfRepository.Update(targetShelf);
+
+                // Delete old rental and create a new rental with new ShelfNumber
+                _rentalRepository.Delete(SelectedRentalRecord.RentalId);
+
+                Rental newRental = new Rental(targetShelf.ShelfNumber, DateTime.Today, SelectedRentalRecord.RenterId);
+                _rentalRepository.Add(newRental);
+
+                // Replace in DataGrid collection
                 RentalRecord updatedRecord = SelectedRentalRecord with
                 {
-                    EndDate = rental.EndDate,
-                    Status = Core.Models.Status.Opsagt
+                    RentalId = newRental.RentalId,
+                    ShelfNumber = targetShelf.ShelfNumber,
+                    ShelfConfigurationChoosen = targetShelf.ShelfConfiguration,
+                    Status = targetShelf.Status,
+                    StartDate = DateTime.Today,
+                    EndDate = null
                 };
 
                 int index = RentalRecords.IndexOf(SelectedRentalRecord);
@@ -205,55 +265,11 @@ namespace Reolmarked.UI.ViewModels
 
                 SelectedRentalRecord = updatedRecord;
             }
-        }
-
-        private void Update(object? parameter = null)
-        {
-            if (ShelfNumber == null || SelectedRentalRecord == null) return;
-
-            Shelf targetShelf = _shelfRepository.GetById((int)ShelfNumber);
-            if (targetShelf == null || targetShelf.Status != Core.Models.Status.Ledig)
+            catch (Exception ex)
             {
-                MessageBox.Show($"Reol nr. {(int)ShelfNumber} er ikke ledig. Vælg en anden.", "Fejl", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                MessageBox.Show($"Kunne ikke opdatere udlejning: {ex.Message}", "Fejl",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            // Update old shelf to "Ledig"
-            Shelf oldShelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
-            if (oldShelf != null)
-            {
-                oldShelf.Status = Core.Models.Status.Ledig;
-                _shelfRepository.Update(oldShelf);
-            }
-
-            // Update target shelf to "Booket"
-            targetShelf.Status = Core.Models.Status.Booket;
-            _shelfRepository.Update(targetShelf);
-
-            // Delete old rental and create a new rental with new ShelfNumber
-            _rentalRepository.Delete(SelectedRentalRecord.RentalId);
-
-            Rental newRental = new Rental(targetShelf.ShelfNumber, DateTime.Today, SelectedRentalRecord.RenterId);
-            _rentalRepository.Add(newRental);
-
-            // Replace in DataGrid collection
-            RentalRecord updatedRecord = SelectedRentalRecord with
-            {
-                RentalId = newRental.RentalId,
-                ShelfNumber = targetShelf.ShelfNumber,
-                ShelfConfigurationChoosen = targetShelf.ShelfConfiguration,
-                Status = targetShelf.Status,
-                StartDate = DateTime.Today,
-                EndDate = null
-            };
-
-            int index = RentalRecords.IndexOf(SelectedRentalRecord);
-            if (index >= 0)
-            {
-                RentalRecords[index] = updatedRecord;
-            }
-
-            SelectedRentalRecord = updatedRecord;
         }
 
         private bool CanUpdate(object? parameter) => SelectedRentalRecord != null && ShelfNumber != null;
@@ -262,25 +278,33 @@ namespace Reolmarked.UI.ViewModels
 
         public void LoadRentalRecords()
         {
-            RentalRecords.Clear();
-            var rentalsFromDb = _rentalRepository.GetAll();
-            foreach (var rental in rentalsFromDb)
+            try
             {
-                var rentalShelf = _shelfRepository.GetById(rental.ShelfNumber);
-                var rentalRenter = _renterRepository.GetById(rental.RenterId);
+                RentalRecords.Clear();
+                var rentalsFromDb = _rentalRepository.GetAll();
+                foreach (var rental in rentalsFromDb)
+                {
+                    var rentalShelf = _shelfRepository.GetById(rental.ShelfNumber);
+                    var rentalRenter = _renterRepository.GetById(rental.RenterId);
 
-                RentalRecords.Add(new RentalRecord(
-                    rental.RentalId,
-                    rental.RenterId,
-                    rental.StartDate,
-                    rental.EndDate,
-                    rentalRenter?.FirstName ?? "",
-                    rentalRenter?.LastName ?? "",
-                    rentalRenter?.PhoneNumber ?? "",
-                    rental.ShelfNumber,
-                    rentalShelf?.ShelfConfiguration ?? ShelfConfiguration.SeksHylder,
-                    rentalShelf?.Status ?? Core.Models.Status.Ledig
-                ));
+                    RentalRecords.Add(new RentalRecord(
+                        rental.RentalId,
+                        rental.RenterId,
+                        rental.StartDate,
+                        rental.EndDate,
+                        rentalRenter?.FirstName ?? "",
+                        rentalRenter?.LastName ?? "",
+                        rentalRenter?.PhoneNumber ?? "",
+                        rental.ShelfNumber,
+                        rentalShelf?.ShelfConfiguration ?? ShelfConfiguration.SeksHylder,
+                        rentalShelf?.Status ?? Core.Models.Status.Ledig
+                    ));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Kunne ikke hente udlejninger: {ex.Message}", "Fejl",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
