@@ -14,11 +14,11 @@ using System.Windows.Shapes;
 namespace Reolmarked.UI.Views
 {
     /// <summary>
-    /// Interaction logic for ManageRentalView.xaml
+    /// Interaction logic for Example2View.xaml
     /// </summary>
-    public partial class ManageRentalView : UserControl
+    public partial class Example2View : UserControl
     {
-        public ManageRentalView()
+        public Example2View()
         {
             InitializeComponent();
         }

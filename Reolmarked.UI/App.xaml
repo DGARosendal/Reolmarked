@@ -16,8 +16,5 @@
         <DataTemplate DataType="{x:Type viewmodel:RentalViewModel}">
             <view:RentalView/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type viewmodel:ManageRentalViewModel}">
-            <view:ManageRentalView/>
-        </DataTemplate>
     </Application.Resources>
 </Application>
