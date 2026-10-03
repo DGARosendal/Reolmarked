@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Data.SqlClient;
+using Reolmarked.Core.Interfaces;
 using Reolmarked.Core.Models;
 
 namespace Reolmarked.Core.Repositories
@@ -14,69 +16,16 @@ namespace Reolmarked.Core.Repositories
             _connectionString = @"Server=localhost;Database=ReolmarkedDb;Trusted_Connection=True;TrustServerCertificate=True;";
         }
 
-        #region ============= CRUD =============
-        public void Add(ShelfRenter renter)
+        public ShelfRenterRepository(string connectionString)
         {
-            string sql = @"INSERT INTO dbo.SHELFRENTER (FirstName, LastName, PhoneNumber)
-                           VALUES (@FirstName, @LastName, @PhoneNumber);
-                           SELECT SCOPE_IDENTITY();";
-
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@FirstName", renter.FirstName);
-                command.Parameters.AddWithValue("@LastName", renter.LastName);
-                command.Parameters.AddWithValue("@PhoneNumber", renter.PhoneNumber);
-
-                connection.Open();
-                object result = command.ExecuteScalar();
-                if (result != null && result != DBNull.Value)
-                {
-                    renter.RenterId = Convert.ToInt32(result);
-                }
-            }
+            _connectionString = connectionString;
         }
 
-        public void Update(ShelfRenter renter)
-        {
-            string sql = @"UPDATE dbo.SHELFRENTER
-                           SET FirstName = @FirstName,
-                               LastName = @LastName,
-                               PhoneNumber = @PhoneNumber
-                           WHERE RenterId = @RenterId;";
-
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@RenterId", renter.RenterId);
-                command.Parameters.AddWithValue("@FirstName", renter.FirstName);
-                command.Parameters.AddWithValue("@LastName", renter.LastName);
-                command.Parameters.AddWithValue("@PhoneNumber", renter.PhoneNumber);
-
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-        }
-
-        // Deletes the renter row. No TRUNCATE — we keep the identity counter as-is
-        // so foreign keys in RENTAL still point to the correct renter.
-        public void Delete(int renterId)
-        {
-            string sql = @"DELETE FROM dbo.SHELFRENTER WHERE RenterId = @RenterId;";
-
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@RenterId", renterId);
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-        }
-
+        // Base fetch method retrieving all records directly via ADO.NET
         public List<ShelfRenter> GetAll()
         {
             List<ShelfRenter> renters = new List<ShelfRenter>();
-            string sql = "SELECT RenterId, FirstName, LastName, PhoneNumber FROM dbo.SHELFRENTER;";
+            string sql = "SELECT RenterId, FirstName, LastName, PhoneNumber, Balance FROM dbo.SHELFRENTER;";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -94,48 +43,107 @@ namespace Reolmarked.Core.Repositories
             return renters;
         }
 
+        // --- LINQ-REFACTORED METHODS ---
 
-        #endregion
-
-
-        /// <summary>
-        /// Method uses SQL string to get Renter by its Id. 
-        /// </summary>
-        /// <param name="renterId"></param>
-        /// <returns></returns>
-        public ShelfRenter GetById(int renterId)
+        // GetById rewritten using LINQ FirstOrDefault
+        public ShelfRenter? GetById(int renterId)
         {
-            string sql = "SELECT RenterId, FirstName, LastName, PhoneNumber FROM dbo.SHELFRENTER WHERE RenterId = @RenterId;";
+            return GetAll().FirstOrDefault(r => r.RenterId == renterId);
+        }
+
+        // GetByName / Search rewritten using LINQ Where + Contains
+        public List<ShelfRenter> GetByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return GetAll();
+
+            return GetAll()
+                .Where(r => (r.FirstName != null && r.FirstName.Contains(name, StringComparison.OrdinalIgnoreCase)) ||
+                            (r.LastName != null && r.LastName.Contains(name, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+        }
+
+        // GetByPhoneNumber rewritten using LINQ Where
+        public List<ShelfRenter> GetByPhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+                return GetAll();
+
+            return GetAll()
+                .Where(r => r.PhoneNumber != null && r.PhoneNumber.Contains(phoneNumber))
+                .ToList();
+        }
+
+        // --- CRUD METHODS ---
+
+        public void Add(ShelfRenter renter)
+        {
+            string sql = @"INSERT INTO dbo.SHELFRENTER (FirstName, LastName, PhoneNumber, Balance)
+                           VALUES (@FirstName, @LastName, @PhoneNumber, @Balance);
+                           SELECT SCOPE_IDENTITY();";
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                SqlCommand command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@FirstName", renter.FirstName ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@LastName", renter.LastName ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@PhoneNumber", renter.PhoneNumber ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Balance", renter.Balance);
+
+                connection.Open();
+                object result = command.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                {
+                    renter.RenterId = Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public void Update(ShelfRenter renter)
+        {
+            string sql = @"UPDATE dbo.SHELFRENTER
+                           SET FirstName = @FirstName,
+                               LastName = @LastName,
+                               PhoneNumber = @PhoneNumber,
+                               Balance = @Balance
+                           WHERE RenterId = @RenterId;";
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                SqlCommand command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@RenterId", renter.RenterId);
+                command.Parameters.AddWithValue("@FirstName", renter.FirstName ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@LastName", renter.LastName ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@PhoneNumber", renter.PhoneNumber ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Balance", renter.Balance);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void Delete(int renterId)
+        {
+            string sql = @"DELETE FROM dbo.SHELFRENTER WHERE RenterId = @RenterId;";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 SqlCommand command = new SqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@RenterId", renterId);
-                connection.Open();
 
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        return MapRenter(reader);
-                    }
-                }
+                connection.Open();
+                command.ExecuteNonQuery();
             }
-            return null;
         }
 
-        /// <summary>
-        /// Maps data from query to Renter class creating and returning a new Shelfrenter object.
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <returns></returns>
         private ShelfRenter MapRenter(SqlDataReader reader)
         {
             return new ShelfRenter(
                 Convert.ToInt32(reader["RenterId"]),
-                reader["FirstName"]?.ToString(),
-                reader["LastName"]?.ToString(),
-                reader["PhoneNumber"]?.ToString()
+                reader["FirstName"]?.ToString() ?? string.Empty,
+                reader["LastName"]?.ToString() ?? string.Empty,
+                reader["PhoneNumber"]?.ToString() ?? string.Empty,
+                Convert.ToDouble(reader["Balance"])
             );
         }
     }

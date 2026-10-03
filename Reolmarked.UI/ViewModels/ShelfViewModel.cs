@@ -1,4 +1,5 @@
-﻿using Reolmarked.Core.Models;
+﻿using Reolmarked.Core.Interfaces;
+using Reolmarked.Core.Models;
 using Reolmarked.Core.Repositories;
 using Reolmarked.UI.Commands;
 using System;
@@ -17,7 +18,7 @@ namespace Reolmarked.UI.ViewModels
 
         // Dropdown options populated directly from the enum definitions
         public List<Status> StatusOptions { get; } = Enum.GetValues(typeof(Status)).Cast<Status>().ToList();
-        public List<Configuration> ConfigurationOptions { get; } = Enum.GetValues(typeof(Configuration)).Cast<Configuration>().ToList();
+        public List<ShelfConfiguration> ConfigurationOptions { get; } = Enum.GetValues(typeof(ShelfConfiguration)).Cast<ShelfConfiguration>().ToList();
 
         private Shelf? _selectedShelf;
         public Shelf? SelectedShelf
@@ -31,7 +32,7 @@ namespace Reolmarked.UI.ViewModels
                     {
                         ShelfNumber = _selectedShelf.ShelfNumber;
                         Status = _selectedShelf.Status;
-                        Configuration = _selectedShelf.Configuration;
+                        Configuration = _selectedShelf.ShelfConfiguration;
                     }
                     UpdateCommand?.RaiseCanExecuteChanged();
                 }
@@ -52,8 +53,8 @@ namespace Reolmarked.UI.ViewModels
             set => SetField(ref _status, value);
         }
 
-        private Configuration _configuration = Configuration.SeksHylder;
-        public Configuration Configuration
+        private ShelfConfiguration _configuration = ShelfConfiguration.SeksHylder;
+        public ShelfConfiguration Configuration
         {
             get => _configuration;
             set => SetField(ref _configuration, value);
@@ -116,7 +117,8 @@ namespace Reolmarked.UI.ViewModels
             try
             {
                 // Create new shelf with temporary number 1 (DB auto-assigns real ID via SCOPE_IDENTITY)
-                var newShelf = new Shelf(1, Configuration, Status);
+                // Using method CreateNewShelf for extra validation
+                var newShelf = Shelf.CreateNewShelf(1, Configuration, Status);
 
                 _shelfRepository.Add(newShelf);
                 Shelves.Add(newShelf);
@@ -125,7 +127,6 @@ namespace Reolmarked.UI.ViewModels
                 DeleteCommand.RaiseCanExecuteChanged();
 
             }
-
             catch (Exception ex)
             {
                 MessageBox.Show($"Kunne ikke tilføje reol: {ex.Message}", "Fejl",
@@ -133,14 +134,13 @@ namespace Reolmarked.UI.ViewModels
             }
         }
 
+
         private void UpdateShelf(object? parameter)
         {
             try
             {
-                if (SelectedShelf == null) return;
-
-                SelectedShelf.Status = Status;
-                SelectedShelf.Configuration = Configuration;
+                SelectedShelf.UpdateStatus(SelectedShelf.Status,Status);
+                SelectedShelf.ShelfConfiguration = Configuration;
 
                 _shelfRepository.Update(SelectedShelf);
 
@@ -159,6 +159,7 @@ namespace Reolmarked.UI.ViewModels
             }
         }
 
+        
         private void DeleteShelf(object? parameter)
         {
             try
@@ -166,22 +167,25 @@ namespace Reolmarked.UI.ViewModels
                 var lastShelf = Shelves.LastOrDefault();
                 if (lastShelf == null) return;
 
-                var result = MessageBox.Show(
-                    $"Er du sikker på, at du vil slette den sidste reol (Reol nr. {lastShelf.ShelfNumber})?",
-                    "Bekræft sletning", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result != MessageBoxResult.Yes)
-                    return;
-
-                _shelfRepository.Delete(lastShelf.ShelfNumber);
-                Shelves.Remove(lastShelf);
-
-                if (SelectedShelf == lastShelf)
+                if (lastShelf.CanBeDeleted())
                 {
-                    ClearSelection();
-                }
+                    var result = MessageBox.Show(
+                        $"Er du sikker på, at du vil slette den sidste reol (Reol nr. {lastShelf.ShelfNumber})?",
+                        "Bekræft sletning", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-                DeleteCommand.RaiseCanExecuteChanged();
+                    if (result != MessageBoxResult.Yes)
+                        return;
+
+                    _shelfRepository.Delete(lastShelf.ShelfNumber);
+                    Shelves.Remove(lastShelf);
+
+                    if (SelectedShelf == lastShelf)
+                    {
+                        ClearSelection();
+                    }
+
+                    DeleteCommand.RaiseCanExecuteChanged();
+                }                
             }
             catch (Exception ex)
             {
@@ -195,7 +199,7 @@ namespace Reolmarked.UI.ViewModels
             SelectedShelf = null;
             ShelfNumber = 0;
             Status = Status.Ledig;
-            Configuration = Configuration.SeksHylder;
+            Configuration = ShelfConfiguration.SeksHylder;
         }
     }
 }

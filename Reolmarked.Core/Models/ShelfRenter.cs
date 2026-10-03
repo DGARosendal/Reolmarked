@@ -42,6 +42,8 @@ namespace Reolmarked.Core.Models
         private string _lastName;
         private string _phoneNumber;
 
+        private double _balance;
+
         public int RenterId { get; set; }
 
         public string FirstName
@@ -74,6 +76,7 @@ namespace Reolmarked.Core.Models
             }
         }
 
+
         public string PhoneNumber
         {
             get
@@ -89,14 +92,29 @@ namespace Reolmarked.Core.Models
             }
         }
 
+        public double Balance
+        {
+            get
+            {
+                return _balance;
+            }
+
+            // Same as FirstName above. 
+            set
+            {
+                _balance = value;
+            }
+        }
+
         // When we create a new ShelfRenter, all three (validated) values must
         // be given as parameters in the constructor.
-        public ShelfRenter(int RenterId, string firstName, string lastName, string phoneNumber)
+        public ShelfRenter(int RenterId, string firstName, string lastName, string phoneNumber, double balance = 0)
         {
             this.RenterId = RenterId;
             FirstName = firstName;
             LastName = lastName;
             PhoneNumber = phoneNumber;
+            Balance = balance;
         }
 
 
@@ -242,7 +260,7 @@ namespace Reolmarked.Core.Models
             return trimmed.Replace(" ", "").Replace("-", "");
         }
 
-    public ShelfRenter(string firstName, string lastName, string phoneNumber)
-            : this(0, firstName, lastName, phoneNumber) { }
+    public ShelfRenter(string firstName, string lastName, string phoneNumber, double balance = 0)
+            : this(0, firstName, lastName, phoneNumber, balance) { }
     }
 }

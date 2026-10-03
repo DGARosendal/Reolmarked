@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Data.SqlClient;
+using Reolmarked.Core.Interfaces;
 using Reolmarked.Core.Models;
 
 namespace Reolmarked.Core.Repositories
@@ -14,75 +16,16 @@ namespace Reolmarked.Core.Repositories
             _connectionString = @"Server=localhost;Database=ReolmarkedDb;Trusted_Connection=True;TrustServerCertificate=True;";
         }
 
-       public ShelfRepository(string connectionString)
+        public ShelfRepository(string connectionString)
         {
             _connectionString = connectionString;
         }
 
-
-        public void Add(Shelf shelf)
-        {
-            string sql = @"INSERT INTO dbo.SHELF (Status, Configuration)
-                           VALUES (@Status, @Configuration);
-                           SELECT SCOPE_IDENTITY();";
-
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                // Convert enum values to string for database storage
-                command.Parameters.AddWithValue("@Status", shelf.Status.ToString());
-                command.Parameters.AddWithValue("@Configuration", shelf.Configuration.ToString());
-
-                connection.Open();
-
-                object result = command.ExecuteScalar();
-                if (result != null && result != DBNull.Value)
-                {
-                    // Set the auto-generated identity ID back on the object
-                    shelf.ShelfNumber = Convert.ToInt32(result);
-                }
-            }
-        }
-
-        public void Update(Shelf shelf)
-        {
-            string sql = @"UPDATE dbo.SHELF
-                           SET Status = @Status,
-                               Configuration = @Configuration
-                           WHERE ShelfNumber = @ShelfNumber;";
-
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@ShelfNumber", shelf.ShelfNumber);
-                command.Parameters.AddWithValue("@Status", shelf.Status.ToString());
-                command.Parameters.AddWithValue("@Configuration", shelf.Configuration.ToString());
-
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-        }
-
-        // Deletes the shelf row. No reseeding — we keep the identity counter as-is
-        // so foreign keys in RENTAL still point to the correct shelf.
-        public void Delete(int shelfNumber)
-        {
-            string sql = @"DELETE FROM dbo.SHELF WHERE ShelfNumber = @ShelfNumber;";
-
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@ShelfNumber", shelfNumber);
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-        }
-
+        // Base fetch method retrieving all records directly via ADO.NET
         public List<Shelf> GetAll()
         {
             List<Shelf> shelves = new List<Shelf>();
-            string sql = "SELECT ShelfNumber, Status, Configuration FROM dbo.SHELF;";
+            string sql = "SELECT ShelfNumber, Status, ShelfConfiguration FROM dbo.SHELF;";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -100,25 +43,86 @@ namespace Reolmarked.Core.Repositories
             return shelves;
         }
 
-        public Shelf GetById(int shelfNumber)
+        // --- LINQ-REFACTORED METHODS ---
+
+        // GetById rewritten using LINQ FirstOrDefault
+        public Shelf? GetById(int shelfNumber)
         {
-            string sql = "SELECT ShelfNumber, Status, Configuration FROM dbo.SHELF WHERE ShelfNumber = @ShelfNumber;";
+            return GetAll().FirstOrDefault(s => s.ShelfNumber == shelfNumber);
+        }
+
+        // Filter shelves by Status using LINQ Where
+        public List<Shelf> GetByStatus(Status status)
+        {
+            return GetAll().Where(s => s.Status == status).ToList();
+        }
+
+        // Filter shelves by Configuration using LINQ Where
+        public List<Shelf> GetByConfiguration(ShelfConfiguration configuration)
+        {
+            return GetAll().Where(s => s.ShelfConfiguration == configuration).ToList();
+        }
+
+        // --- CRUD METHODS ---
+
+        public void Add(Shelf shelf)
+        {
+            string sql = @"INSERT INTO dbo.SHELF (Status, ShelfConfiguration)
+                           VALUES (@Status, @ShelfConfiguration);
+                           SELECT SCOPE_IDENTITY();";
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                SqlCommand command = new SqlCommand(sql, connection);
+
+                // Convert enum values to string for database storage
+                command.Parameters.AddWithValue("@Status", shelf.Status.ToString());
+                command.Parameters.AddWithValue("@ShelfConfiguration", shelf.ShelfConfiguration.ToString());
+
+                connection.Open();
+
+                object result = command.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                {
+                    // Set the auto-generated identity ID back on the object
+                    shelf.ShelfNumber = Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public void Update(Shelf shelf)
+        {
+            string sql = @"UPDATE dbo.SHELF
+                           SET Status = @Status,
+                               ShelfConfiguration = @ShelfConfiguration
+                           WHERE ShelfNumber = @ShelfNumber;";
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                SqlCommand command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@ShelfNumber", shelf.ShelfNumber);
+                command.Parameters.AddWithValue("@Status", shelf.Status.ToString());
+                command.Parameters.AddWithValue("@ShelfConfiguration", shelf.ShelfConfiguration.ToString());
+
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+        }
+
+        // Deletes the shelf row. No reseeding — we keep the identity counter as-is
+        // so foreign keys in RENTAL still point to the correct shelf.
+        public void Delete(int shelfNumber)
+        {
+            string sql = @"DELETE FROM dbo.SHELF WHERE ShelfNumber = @ShelfNumber;";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 SqlCommand command = new SqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@ShelfNumber", shelfNumber);
-                connection.Open();
 
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        return MapShelf(reader);
-                    }
-                }
+                connection.Open();
+                command.ExecuteNonQuery();
             }
-            return null;
         }
 
         private Shelf MapShelf(SqlDataReader reader)
@@ -126,16 +130,16 @@ namespace Reolmarked.Core.Repositories
             int shelfNumber = Convert.ToInt32(reader["ShelfNumber"]);
 
             // Parse Status enum from database string
-            string statusStr = reader["Status"]?.ToString();
+            string? statusStr = reader["Status"]?.ToString();
             Status status = Enum.TryParse<Status>(statusStr, out var parsedStatus)
                 ? parsedStatus
                 : Status.Ledig;
 
             // Parse Configuration enum from database string
-            string configStr = reader["Configuration"]?.ToString();
-            Configuration config = Enum.TryParse<Configuration>(configStr, out var parsedConfig)
+            string? configStr = reader["ShelfConfiguration"]?.ToString();
+            ShelfConfiguration config = Enum.TryParse<ShelfConfiguration>(configStr, out var parsedConfig)
                 ? parsedConfig
-                : Configuration.SeksHylder;
+                : ShelfConfiguration.SeksHylder;
 
             return new Shelf(shelfNumber, config, status);
         }

@@ -1,7 +1,7 @@
 ﻿// SRP: MainViewModel is responsible for navigation between the three pages.
 // It holds one ViewModel per page and swaps CurrentView when a button is clicked.
 
-using Reolmarked.Core.Repositories;
+using Reolmarked.Core.Interfaces;
 using Reolmarked.UI.Commands;
 
 namespace Reolmarked.UI.ViewModels
@@ -12,11 +12,14 @@ namespace Reolmarked.UI.ViewModels
         public RelayCommand ShelfViewCommand { get; set; }
         public RelayCommand ShelfRenterViewCommand { get; set; }
         public RelayCommand RentalViewCommand { get; set; }
+        public RelayCommand ManageRentalViewCommand { get; set; }
 
         // One ViewModel per page.
         public ShelfViewModel ShelfVM { get; set; }
         public ShelfRenterViewModel ShelfRenterVM { get; set; }
         public RentalViewModel RentalVM { get; set; }
+        public ManageRentalViewModel ManageRentalVM { get; set; }
+
 
         // The ViewModel currently shown in the ContentControl.
         private object? _currentView;
@@ -35,6 +38,7 @@ namespace Reolmarked.UI.ViewModels
             ShelfVM = new ShelfViewModel(shelfRepository);
             ShelfRenterVM = new ShelfRenterViewModel(shelfRenterRepository);
             RentalVM = new RentalViewModel(rentalRepository, shelfRepository, shelfRenterRepository);
+            ManageRentalVM = new ManageRentalViewModel(rentalRepository, shelfRepository, shelfRenterRepository);
 
             // Start on the Book reol page (matches the wireframe).
             CurrentView = RentalVM;
@@ -59,6 +63,12 @@ namespace Reolmarked.UI.ViewModels
             {
                 RentalVM.LoadShelves();
                 CurrentView = RentalVM;
+            });
+
+            ManageRentalViewCommand = new RelayCommand(o =>
+            {
+                ManageRentalVM.LoadRentalRecords();
+                CurrentView = ManageRentalVM;
             });
         }
     }
