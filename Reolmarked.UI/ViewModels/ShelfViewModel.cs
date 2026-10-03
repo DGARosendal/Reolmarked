@@ -1,4 +1,5 @@
-﻿using Reolmarked.Core.Models;
+﻿using Reolmarked.Core.Interfaces;
+using Reolmarked.Core.Models;
 using Reolmarked.Core.Repositories;
 using Reolmarked.UI.Commands;
 using System;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.SqlClient;
+using Reolmarked.Core.Interfaces;
 using Reolmarked.Core.Models;
 
 namespace Reolmarked.Core.Repositories

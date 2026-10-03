@@ -5,9 +5,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using Reolmarked.Core.Models;
-using Reolmarked.Core.Repositories;
 using Reolmarked.UI.Commands;
 using System.Diagnostics;
+using Reolmarked.Core.Interfaces;
 
 namespace Reolmarked.UI.ViewModels
 {
