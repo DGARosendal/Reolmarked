@@ -17,7 +17,7 @@ namespace Reolmarked.UI.ViewModels
 
         // Dropdown options populated directly from the enum definitions
         public List<Status> StatusOptions { get; } = Enum.GetValues(typeof(Status)).Cast<Status>().ToList();
-        public List<Configuration> ConfigurationOptions { get; } = Enum.GetValues(typeof(Configuration)).Cast<Configuration>().ToList();
+        public List<ShelfConfiguration> ConfigurationOptions { get; } = Enum.GetValues(typeof(ShelfConfiguration)).Cast<ShelfConfiguration>().ToList();
 
         private Shelf? _selectedShelf;
         public Shelf? SelectedShelf
@@ -31,7 +31,7 @@ namespace Reolmarked.UI.ViewModels
                     {
                         ShelfNumber = _selectedShelf.ShelfNumber;
                         Status = _selectedShelf.Status;
-                        Configuration = _selectedShelf.Configuration;
+                        Configuration = _selectedShelf.ShelfConfiguration;
                     }
                     UpdateCommand?.RaiseCanExecuteChanged();
                 }
@@ -52,8 +52,8 @@ namespace Reolmarked.UI.ViewModels
             set => SetField(ref _status, value);
         }
 
-        private Configuration _configuration = Configuration.SeksHylder;
-        public Configuration Configuration
+        private ShelfConfiguration _configuration = ShelfConfiguration.SeksHylder;
+        public ShelfConfiguration Configuration
         {
             get => _configuration;
             set => SetField(ref _configuration, value);
@@ -139,7 +139,7 @@ namespace Reolmarked.UI.ViewModels
             try
             {
                 SelectedShelf.UpdateStatus(SelectedShelf.Status,Status);
-                SelectedShelf.Configuration = Configuration;
+                SelectedShelf.ShelfConfiguration = Configuration;
 
                 _shelfRepository.Update(SelectedShelf);
 
@@ -198,7 +198,7 @@ namespace Reolmarked.UI.ViewModels
             SelectedShelf = null;
             ShelfNumber = 0;
             Status = Status.Ledig;
-            Configuration = Configuration.SeksHylder;
+            Configuration = ShelfConfiguration.SeksHylder;
         }
     }
 }

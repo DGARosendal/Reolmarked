@@ -20,7 +20,7 @@ namespace Reolmarked.UI.ViewModels
         // -----  For DataGrid  -----
 
         // Collection of Rentals
-        public record RentalRecord(int RenterId, DateTime StartDate, string FirstName, string LastName, string PhoneNumber, int ShelfNumber, Configuration Configuration, Status Status);
+        public record RentalRecord(int RenterId, DateTime StartDate, string FirstName, string LastName, string PhoneNumber, int ShelfNumber, ShelfConfiguration ShelfConfiguration, Status Status);
         public ObservableCollection<RentalRecord> RentalRecords { get; set; }
 
         // Selected Rental
@@ -41,7 +41,7 @@ namespace Reolmarked.UI.ViewModels
                         LastName = _selectedRentalRecord.LastName;
                         PhoneNumber = _selectedRentalRecord.PhoneNumber;
                         ShelfNumber = _selectedRentalRecord.ShelfNumber;
-                        Configuration = _selectedRentalRecord.Configuration;
+                        ShelfConfiguration = _selectedRentalRecord.ShelfConfiguration;
                         Status = _selectedRentalRecord.Status;                        
                     }
                     UpdateCommand?.RaiseCanExecuteChanged();
@@ -92,11 +92,11 @@ namespace Reolmarked.UI.ViewModels
             set => SetField(ref _status, value);
         }
 
-        private Configuration? _configuration;
-        public Configuration? Configuration
+        private ShelfConfiguration? _shelfConfiguration;
+        public ShelfConfiguration? ShelfConfiguration
         {
-            get => _configuration;
-            set => SetField(ref _configuration, value);
+            get => _shelfConfiguration;
+            set => SetField(ref _shelfConfiguration, value);
         }
 
 
@@ -139,7 +139,7 @@ namespace Reolmarked.UI.ViewModels
             LastName = string.Empty;
             PhoneNumber = string.Empty;
             ShelfNumber = null;
-            Configuration = null;
+            ShelfConfiguration = null;
             Status = null;
             SelectedRentalRecord = null;
         }
@@ -151,9 +151,10 @@ namespace Reolmarked.UI.ViewModels
             // Covered by CanTerminate()
             if (SelectedRentalRecord == null) return;
 
-            DateTime terminateDate = Rental.FindTerminationDate();
-
-            string terminateMessage = $"Opsig reol {SelectedRentalRecord.ShelfNumber} til d. {terminateDate.ToString("d")}?";
+            Rental r = new Rental(SelectedRentalRecord.ShelfNumber, SelectedRentalRecord.StartDate, SelectedRentalRecord.RenterId);
+            r.SetTerminationDate();
+            string displayDate = r.EndDate?.ToString("d") ?? "Ingen slutdato";
+            string terminateMessage = $"Opsig reol {SelectedRentalRecord.ShelfNumber} til d. {displayDate}?";
             MessageBoxResult messageResult = MessageBox.Show(terminateMessage, "Opsig reol", MessageBoxButton.YesNo);
             if (messageResult == MessageBoxResult.Yes)
             {
@@ -162,7 +163,7 @@ namespace Reolmarked.UI.ViewModels
                 RentalRecord updatedRecord = SelectedRentalRecord with { Status = Core.Models.Status.Opsagt };
 
                 // Update shelf in repository
-                _shelfRepository.Update(new Shelf(updatedRecord.ShelfNumber, updatedRecord.Configuration, updatedRecord.Status));
+                _shelfRepository.Update(new Shelf(updatedRecord.ShelfNumber, updatedRecord.ShelfConfiguration, updatedRecord.Status));
 
                 // Remove old and add new RentalRecord from RentalRecords
                 RentalRecords.Remove(SelectedRentalRecord);
@@ -185,10 +186,10 @@ namespace Reolmarked.UI.ViewModels
             {
                 // Update old shelf in shelfRepository
                 Shelf oldShelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
-                _shelfRepository.Update(new Shelf(oldShelf.ShelfNumber, oldShelf.Configuration, Core.Models.Status.Ledig));
+                _shelfRepository.Update(new Shelf(oldShelf.ShelfNumber, oldShelf.ShelfConfiguration, Core.Models.Status.Ledig));
 
                 // Update new shelf in shelfRepository
-                Shelf newShelf = new Shelf((int)ShelfNumber, _shelfRepository.GetById((int)ShelfNumber).Configuration, Core.Models.Status.Booket);
+                Shelf newShelf = new Shelf((int)ShelfNumber, _shelfRepository.GetById((int)ShelfNumber).ShelfConfiguration, Core.Models.Status.Booket);
                 _shelfRepository.Update(newShelf);
 
                 // Update rental in repository - Delete and create new because ShelfNumber is PK
@@ -198,7 +199,7 @@ namespace Reolmarked.UI.ViewModels
 
                 // Update RentalRecord in RentalRecords - Remove old and add new
                 // Create new record from SelectedRentalRecord with updated properties for Shelf and StartDate
-                RentalRecord updatedRecord = SelectedRentalRecord with { ShelfNumber = newShelf.ShelfNumber, Configuration = newShelf.Configuration, Status = newShelf.Status, StartDate = DateTime.Today};
+                RentalRecord updatedRecord = SelectedRentalRecord with { ShelfNumber = newShelf.ShelfNumber, ShelfConfiguration = newShelf.ShelfConfiguration, Status = newShelf.Status, StartDate = DateTime.Today};
                 // Remove old and add new RentalRecord from RentalRecords
                 RentalRecords.Remove(SelectedRentalRecord);
                 RentalRecords.Add(updatedRecord);
@@ -242,7 +243,7 @@ namespace Reolmarked.UI.ViewModels
             {
                 var rentalShelf = _shelfRepository.GetById(rental.ShelfNumber);
                 var rentalRenter = _renterRepository.GetById(rental.RenterId);
-                RentalRecords.Add(new RentalRecord(rental.RenterId,rental.StartDate,rentalRenter.FirstName, rentalRenter.LastName, rentalRenter.PhoneNumber, rental.ShelfNumber, rentalShelf.Configuration, rentalShelf.Status));
+                RentalRecords.Add(new RentalRecord(rental.RenterId,rental.StartDate,rentalRenter.FirstName, rentalRenter.LastName, rentalRenter.PhoneNumber, rental.ShelfNumber, rentalShelf.ShelfConfiguration, rentalShelf.Status));
             }
         }
     }

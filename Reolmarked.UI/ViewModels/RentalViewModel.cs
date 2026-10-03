@@ -7,6 +7,7 @@ using System.Windows;
 using Reolmarked.Core.Models;
 using Reolmarked.Core.Repositories;
 using Reolmarked.UI.Commands;
+using System.Diagnostics;
 
 namespace Reolmarked.UI.ViewModels
 {
@@ -116,7 +117,7 @@ namespace Reolmarked.UI.ViewModels
 
         // Start date for the new rental. Defaults to today.
         // DateTime.Today gives midnight of the current day.
-        private DateTime _startDate = DateTime.Today;
+        private DateTime _startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1);
         public DateTime StartDate
         {
             get => _startDate;
@@ -167,6 +168,7 @@ namespace Reolmarked.UI.ViewModels
 
             // Fill the shelf grid right away, so the screen isn't empty on load.
             LoadShelves();
+            SearchRenter("");
         }
 
         // Loading
@@ -323,6 +325,8 @@ namespace Reolmarked.UI.ViewModels
                     SelectedShelf.ShelfNumber,
                     StartDate,
                     SelectedRenter.RenterId);
+                
+
 
                 // 2. Insert the new rental into the RENTAL table.
                 _rentalRepository.Add(rental);

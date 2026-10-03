@@ -8,7 +8,7 @@ namespace Reolmarked.Core.Models
     {
         // These fields hold the real values. The properties below check the value (validate) before saving it.
         private int _shelfNumber;
-        private Configuration _configuration;
+        private ShelfConfiguration _shelfconfiguration;
         private Status _status;
 
 
@@ -35,19 +35,19 @@ namespace Reolmarked.Core.Models
 
         // Represents the configuration of the shelf (reol). We have an enum for this, currently
         // set up with either 3 shelves and a hanger, or 6 shelves, as options.
-        public Configuration Configuration
+        public ShelfConfiguration ShelfConfiguration
         {
-            get { return _configuration; }
+            get { return _shelfconfiguration; }
             set
             {
                 // Enum.IsDefined checks that the value is one of the options in the enum.
                 // If it is not, we throw an error to the user, gently letting them know what the problem is.
-                if (!Enum.IsDefined(typeof(Configuration), value))
+                if (!Enum.IsDefined(typeof(ShelfConfiguration), value))
                 {
                     throw new ArgumentException("Ugyldig reolkonfiguration.");
                 }
 
-                _configuration = value;
+                _shelfconfiguration = value;
             }
         }
 
@@ -96,12 +96,12 @@ namespace Reolmarked.Core.Models
             Status = newStatus;
         }
 
-        public Shelf(int shelfNumber, Configuration configuration, Status status)
+        public Shelf(int shelfNumber, ShelfConfiguration configuration, Status status)
         {
             // These use the properties above, so we know that all three values are validated.
             // If one is invalid, an error is thrown above and the Shelf is never created.
             ShelfNumber = shelfNumber;
-            Configuration = configuration;
+            ShelfConfiguration = configuration;
             Status = status;
         }
 
@@ -113,7 +113,7 @@ namespace Reolmarked.Core.Models
         /// <param name="status"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static Shelf CreateNewShelf(int shelfNumber, Configuration configuration, Status status)
+        public static Shelf CreateNewShelf(int shelfNumber, ShelfConfiguration configuration, Status status)
         {
             // Can't add new Shelf with booked or terminated Status
             if (status == Status.Booket || status == Status.Opsagt)

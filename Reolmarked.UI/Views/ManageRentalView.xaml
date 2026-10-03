@@ -90,7 +90,7 @@
                                  Margin="0,0,0,0" />
 
                         <TextBlock Text="Konfiguration:" FontWeight="SemiBold" Margin="0,5,0,2" />
-                        <TextBox Text="{Binding Configuration, UpdateSourceTrigger=PropertyChanged}" 
+                        <TextBox Text="{Binding ShelfConfiguration, UpdateSourceTrigger=PropertyChanged}" 
                                  IsReadOnly="True" Background="LightGray" 
                                  Margin="0,0,0,0" />
 
@@ -120,7 +120,7 @@
                         <DataGridTextColumn Header="Efternavn" Binding="{Binding LastName}" Width="*" />
                         <DataGridTextColumn Header="Tlf. nr." Binding="{Binding PhoneNumber}" Width="70" />                        
                         <DataGridTextColumn Header="Reol nr." Binding="{Binding ShelfNumber}" Width="50" />
-                        <DataGridTextColumn Header="Konfiguration" Binding="{Binding Configuration}" Width="*" />
+                        <DataGridTextColumn Header="Konfiguration" Binding="{Binding ShelfConfiguration}" Width="*" />
                         <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" />
                     </DataGrid.Columns>
                 </DataGrid>
