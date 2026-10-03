@@ -14,6 +14,12 @@ namespace Reolmarked.Core.Repositories
             _connectionString = @"Server=localhost;Database=ReolmarkedDb;Trusted_Connection=True;TrustServerCertificate=True;";
         }
 
+       public ShelfRepository(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+
         public void Add(Shelf shelf)
         {
             string sql = @"INSERT INTO dbo.SHELF (Status, Configuration)

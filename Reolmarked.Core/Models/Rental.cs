@@ -14,7 +14,6 @@ namespace Reolmarked.Core.Models
         private DateTime _startDate;
         private int _renterId;
 
-
         // Represents the shelf (reol) being rented. This is a positive
         // integer and matches the ShelfNumber of an existing Shelf (already gets 
         // validated through Shelf.cs).
@@ -69,19 +68,6 @@ namespace Reolmarked.Core.Models
             ShelfNumber = shelfNumber;
             StartDate = startDate;
             RenterId = renterId;
-        }
-        
-        public static DateTime FindTerminationDate()
-        {
-            DateTime dt = DateTime.Today;
-            if (DateTime.Today.Day < 20)
-            {
-                return new DateTime(dt.Year, dt.Month, 1).AddMonths(1);
-            }
-            else
-            {
-                return new DateTime(dt.Year, dt.Month, 1).AddMonths(2);
-            }
         }
     }
 }

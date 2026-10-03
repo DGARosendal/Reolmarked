@@ -430,3 +430,7 @@ FodyWeavers.xsd
 
 # Connection strings / secrets
 appsettings.json
+
+
+# Folder and Files
+Database Queries

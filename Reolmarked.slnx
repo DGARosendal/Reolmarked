@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Reolmarked.Core/Reolmarked.Core.csproj" Id="1f3d3a0c-7b13-4525-a321-b7cf1438ba5d" />
+  <Project Path="Reolmarked.Tests/Reolmarked.Tests.csproj" Id="b806a7f0-d8fc-4431-93b4-3f67246e8424" />
   <Project Path="Reolmarked.UI/Reolmarked.UI.csproj" Id="552907cd-cbbf-46ab-bc90-492a7d14053e" />
 </Solution>
