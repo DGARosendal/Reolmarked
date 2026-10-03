@@ -10,8 +10,4 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
-
 </Project>

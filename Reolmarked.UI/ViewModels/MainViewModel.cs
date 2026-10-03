@@ -1,7 +1,7 @@
 ﻿// SRP: MainViewModel is responsible for navigation between the three pages.
 // It holds one ViewModel per page and swaps CurrentView when a button is clicked.
 
-using Reolmarked.Core.Repositories;
+using Reolmarked.Core.Interfaces;
 using Reolmarked.UI.Commands;
 
 namespace Reolmarked.UI.ViewModels

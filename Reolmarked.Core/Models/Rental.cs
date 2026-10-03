@@ -1,86 +1,67 @@
-﻿// SRP: This class is responsible for the integrity of a Rental.
-// It holds the rental's data in its fields and only accepts values
-// that pass validation.
-
-using System;
-
-namespace Reolmarked.Core.Models
+﻿namespace Reolmarked.Core.Models
 {
     public class Rental
     {
-        // Backing fields. Private so they can only be changed through the
-        // properties below. That way every value passes validation first.
+        private int _rentalId;
         private int _shelfNumber;
         private DateTime _startDate;
+        private DateTime? _endDate;
         private int _renterId;
 
-        // Represents the shelf (reol) being rented. This is a positive
-        // integer and matches the ShelfNumber of an existing Shelf (already gets 
-        // validated through Shelf.cs).
-        public int ShelfNumber
-        {
-            get { return _shelfNumber; }
-            set { _shelfNumber = value; }
-        }
+        public int RentalId { get => _rentalId; set => _rentalId = value; }
+        public int ShelfNumber { get => _shelfNumber; set => _shelfNumber = value; }
 
-        // Represents the date the rental begins. 
         public DateTime StartDate
         {
-            get { return _startDate; }
+            get => _startDate;
             set
             {
-                // The ViewModel defaults StartDate to today, but we can't rely on that
-                // always being the case if the UI is ever replaced. So we keep a backup
-                // validation here.
-                //
-                // DateTime.MinValue (01-01-0001) is what the field holds if it is never
-                // set. Since that is not a valid start date for a rental, we use it as a
-                // signal that the value was never assigned, and gently remind the user.
                 if (value == DateTime.MinValue)
-                {
-                    throw new ArgumentException("Startdato er ikke angivet korrekt. Vælg venligst en gyldig dato.");
-                }
+                    throw new ArgumentException("Startdato er ikke angivet korrekt.");
 
-                // Business rule validation: a booking may only start on the 1st of a month.
-                // Without this, the user could book from e.g. the 14th, which conflicts with
-                // the agreement about monthly billing.
                 if (value.Day != 1)
-                {
                     throw new ArgumentException("A booking must start on the 1st of a month.");
-                }
 
                 _startDate = value;
             }
         }
 
-        // Represents the renter (reollejer). Matches the RenterId of an
-        // existing ShelfRenter.
-        public int RenterId
+        public DateTime? EndDate
         {
-            get { return _renterId; }
-            set { _renterId = value; }
+            get => _endDate;
+            set
+            {
+                if (value.HasValue && value.Value < _startDate)
+                    throw new ArgumentException("Slutdato kan ikke være før startdato.");
+
+                _endDate = value;
+            }
         }
 
-        // When we create a new Rental, all three values must be given as
-        // parameters in the constructor.
-        public Rental(int shelfNumber, DateTime startDate, int renterId)
+        public int RenterId { get => _renterId; set => _renterId = value; }
+
+        // Main constructor matching MapRental in RentalRepository
+        public Rental(int rentalId, int shelfNumber, DateTime startDate, DateTime? endDate, int renterId)
         {
+            RentalId = rentalId;
             ShelfNumber = shelfNumber;
             StartDate = startDate;
+            EndDate = endDate;
             RenterId = renterId;
         }
 
-        public static DateTime FindTerminationDate()
+        // Convenience constructor for creating new rentals in ViewModels
+        public Rental(int shelfNumber, DateTime startDate, int renterId, DateTime? endDate = null)
+            : this(0, shelfNumber, startDate, endDate, renterId) { }
+
+        public void SetTerminationDate()
         {
-            DateTime dt = DateTime.Today;
-            if (DateTime.Today.Day < 20)
-            {
-                return new DateTime(dt.Year, dt.Month, 1).AddMonths(1);
-            }
-            else
-            {
-                return new DateTime(dt.Year, dt.Month, 1).AddMonths(2);
-            }
+            DateTime now = DateTime.Now;
+            DateTime referenceDate = StartDate > now ? StartDate : now;
+            // Guyyaa jalqaba ji'a itti aanuu argachuudhaan guyyaa 1 irraa hir'isa
+            DateTime startOfNextMonth = new DateTime(referenceDate.Year, referenceDate.Month, 1).AddMonths(1);
+            EndDate = startOfNextMonth.AddDays(-1);
         }
     }
+
 }

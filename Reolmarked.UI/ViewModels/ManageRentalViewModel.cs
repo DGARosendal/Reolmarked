@@ -1,26 +1,34 @@
-﻿using Reolmarked.Core.Models;
-using Reolmarked.Core.Repositories;
+﻿using Reolmarked.Core.Interfaces;
+using Reolmarked.Core.Models;
 using Reolmarked.UI.Commands;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
 using System.Windows;
-using System.Windows.Input;
 
 namespace Reolmarked.UI.ViewModels
 {
     public class ManageRentalViewModel : ViewModelBase
     {
-        // -----  Repositories  -----
+        // ----- Repositories -----
         private readonly IRentalRepository _rentalRepository;
         private readonly IShelfRepository _shelfRepository;
         private readonly IShelfRenterRepository _renterRepository;
 
-        // -----  For DataGrid  -----
+        // ----- For DataGrid -----
+        // Collection of Rentals (Now includes RentalId and EndDate)
+        public record RentalRecord(
+            int RentalId,
+            int RenterId,
+            DateTime StartDate,
+            DateTime? EndDate,
+            string FirstName,
+            string LastName,
+            string PhoneNumber,
+            int ShelfNumber,
+            ShelfConfiguration ShelfConfigurationChoosen,
+            Status Status
+        );
 
-        // Collection of Rentals
-        public record RentalRecord(int RenterId, DateTime StartDate, string FirstName, string LastName, string PhoneNumber, int ShelfNumber, Configuration Configuration, Status Status);
         public ObservableCollection<RentalRecord> RentalRecords { get; set; }
 
         // Selected Rental
@@ -30,19 +38,23 @@ namespace Reolmarked.UI.ViewModels
             get => _selectedRentalRecord;
             set
             {
-                // SetField updates the field and notifies WPF about the change.
                 if (SetField(ref _selectedRentalRecord, value))
                 {
                     if (_selectedRentalRecord != null)
                     {
                         // Update Properties
                         StartDate = _selectedRentalRecord.StartDate.ToString("d");
+                        EndDate = _selectedRentalRecord.EndDate?.ToString("d") ?? "Aktiv";
                         FirstName = _selectedRentalRecord.FirstName;
                         LastName = _selectedRentalRecord.LastName;
                         PhoneNumber = _selectedRentalRecord.PhoneNumber;
                         ShelfNumber = _selectedRentalRecord.ShelfNumber;
-                        Configuration = _selectedRentalRecord.Configuration;
-                        Status = _selectedRentalRecord.Status;                        
+                        ShelfConfigurationChoosen = _selectedRentalRecord.ShelfConfigurationChoosen;
+                        Status = _selectedRentalRecord.Status;
+                    }
+                    else
+                    {
+                        ClearSelection();
                     }
                     UpdateCommand?.RaiseCanExecuteChanged();
                     TerminateCommand?.RaiseCanExecuteChanged();
@@ -50,14 +62,21 @@ namespace Reolmarked.UI.ViewModels
             }
         }
 
-        // -----  Properties for textboxes  -----
-
+        // ----- Properties for textboxes -----
         private string _startDate = string.Empty;
         public string StartDate
         {
             get => _startDate;
             set => SetField(ref _startDate, value);
         }
+
+        private string _endDate = string.Empty;
+        public string EndDate
+        {
+            get => _endDate;
+            set => SetField(ref _endDate, value);
+        }
+
         private string _firstName = string.Empty;
         public string FirstName
         {
@@ -85,6 +104,7 @@ namespace Reolmarked.UI.ViewModels
             get => _shelfNumber;
             set => SetField(ref _shelfNumber, value);
         }
+
         private Status? _status;
         public Status? Status
         {
@@ -92,148 +112,154 @@ namespace Reolmarked.UI.ViewModels
             set => SetField(ref _status, value);
         }
 
-        private Configuration? _configuration;
-        public Configuration? Configuration
+        private ShelfConfiguration? _shelfConfigurationChoosen;
+        public ShelfConfiguration? ShelfConfigurationChoosen
         {
-            get => _configuration;
-            set => SetField(ref _configuration, value);
+            get => _shelfConfigurationChoosen;
+            set => SetField(ref _shelfConfigurationChoosen, value);
         }
 
-
-        // -----  RelayCommands  -----
-
+        // ----- RelayCommands -----
         public RelayCommand UpdateCommand { get; set; }
         public RelayCommand TerminateCommand { get; set; }
         public RelayCommand ClearSelectionCommand { get; set; }
 
-
-        // -----  ctor with repositories  -----
+        // ----- ctor with repositories -----
         public ManageRentalViewModel(
             IRentalRepository rentalRepository,
             IShelfRepository shelfRepository,
             IShelfRenterRepository renterRepository)
         {
-            // Store the repositories so we can use them in the methods below.
             _rentalRepository = rentalRepository;
             _shelfRepository = shelfRepository;
             _renterRepository = renterRepository;
 
-            // Commands
             UpdateCommand = new RelayCommand(Update, CanUpdate);
             TerminateCommand = new RelayCommand(Terminate, CanTerminate);
             ClearSelectionCommand = new RelayCommand(ClearSelection);
 
-            // Initialize 
             RentalRecords = new ObservableCollection<RentalRecord>();
 
             LoadRentalRecords();
         }
 
-        // -----  Execute commands  -----
+        // ----- Execute commands -----
 
-        // Clear all textboxes
-        private void ClearSelection()
+        private void ClearSelection(object? parameter = null)
         {
             StartDate = string.Empty;
+            EndDate = string.Empty;
             FirstName = string.Empty;
             LastName = string.Empty;
             PhoneNumber = string.Empty;
             ShelfNumber = null;
-            Configuration = null;
+            ShelfConfigurationChoosen = null;
             Status = null;
             SelectedRentalRecord = null;
         }
 
-        // Terminate rental
-        // OBS: Does not delete the record, ONLY sets Shelf to "Opsagt"
-        private void Terminate()
+        // Terminate rental by calculating EndDate and updating RentalId
+        private void Terminate(object? parameter = null)
         {
-            // Covered by CanTerminate()
             if (SelectedRentalRecord == null) return;
 
-            DateTime terminateDate = Rental.FindTerminationDate();
+            // 1. Calculate termination date on the model instance
+            Rental rental = new Rental(
+                SelectedRentalRecord.RentalId,
+                SelectedRentalRecord.ShelfNumber,
+                SelectedRentalRecord.StartDate,
+                SelectedRentalRecord.EndDate,
+                SelectedRentalRecord.RenterId
+            );
+            rental.SetTerminationDate();
 
-            string terminateMessage = $"Opsig reol {SelectedRentalRecord.ShelfNumber} til d. {terminateDate.ToString("d")}?";
-            MessageBoxResult messageResult = MessageBox.Show(terminateMessage, "Opsig reol", MessageBoxButton.YesNo);
+            string displayDate = rental.EndDate?.ToString("d") ?? "Ingen slutdato";
+            string terminateMessage = $"Opsig reol {SelectedRentalRecord.ShelfNumber} til d. {displayDate}?";
+
+            MessageBoxResult messageResult = MessageBox.Show(terminateMessage, "Opsig reol", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (messageResult == MessageBoxResult.Yes)
             {
-                // OBS: Does not delete the record, ONLY sets Shelf to "Opsagt"
-                // Create new record from SelectedRentalRecord with updated properties
-                RentalRecord updatedRecord = SelectedRentalRecord with { Status = Core.Models.Status.Opsagt };
+                // 2. Save updated EndDate to SQL Server for matching RentalId
+                _rentalRepository.Update(rental);
 
-                // Update shelf in repository
-                _shelfRepository.Update(new Shelf(updatedRecord.ShelfNumber, updatedRecord.Configuration, updatedRecord.Status));
+                // 3. Set shelf status to "Opsagt"
+                Shelf shelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
+                if (shelf != null)
+                {
+                    shelf.Status = Core.Models.Status.Opsagt;
+                    _shelfRepository.Update(shelf);
+                }
 
-                // Remove old and add new RentalRecord from RentalRecords
-                RentalRecords.Remove(SelectedRentalRecord);
-                RentalRecords.Add(updatedRecord);
-            }
-        }
+                // 4. Update local record in ObservableCollection
+                RentalRecord updatedRecord = SelectedRentalRecord with
+                {
+                    EndDate = rental.EndDate,
+                    Status = Core.Models.Status.Opsagt
+                };
 
-        // Update rental = Delete and create new, because ShelfNumber is PK
-        private void Update()
-        {
-            // Covered by CanUpdate()
-            if (ShelfNumber == null || SelectedRentalRecord == null) return;
+                int index = RentalRecords.IndexOf(SelectedRentalRecord);
+                if (index >= 0)
+                {
+                    RentalRecords[index] = updatedRecord;
+                }
 
-            // Check if new shelf for booking is "Ledig"
-            if (_shelfRepository.GetById((int)ShelfNumber).Status != Core.Models.Status.Ledig)
-            {
-                MessageBox.Show($"Reol nr. {(int)ShelfNumber} er ikke ledig. Vælg en anden.", "Fejl");
-            }
-            else
-            {
-                // Update old shelf in shelfRepository
-                Shelf oldShelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
-                _shelfRepository.Update(new Shelf(oldShelf.ShelfNumber, oldShelf.Configuration, Core.Models.Status.Ledig));
-
-                // Update new shelf in shelfRepository
-                Shelf newShelf = new Shelf((int)ShelfNumber, _shelfRepository.GetById((int)ShelfNumber).Configuration, Core.Models.Status.Booket);
-                _shelfRepository.Update(newShelf);
-
-                // Update rental in repository - Delete and create new because ShelfNumber is PK
-                Rental newRental = new Rental((int)ShelfNumber, DateTime.Today, SelectedRentalRecord.RenterId);
-                _rentalRepository.Delete(SelectedRentalRecord.ShelfNumber);
-                _rentalRepository.Add(newRental);
-
-                // Update RentalRecord in RentalRecords - Remove old and add new
-                // Create new record from SelectedRentalRecord with updated properties for Shelf and StartDate
-                RentalRecord updatedRecord = SelectedRentalRecord with { ShelfNumber = newShelf.ShelfNumber, Configuration = newShelf.Configuration, Status = newShelf.Status, StartDate = DateTime.Today};
-                // Remove old and add new RentalRecord from RentalRecords
-                RentalRecords.Remove(SelectedRentalRecord);
-                RentalRecords.Add(updatedRecord);
-
-                // Update SelectedRentalRecord to show updated Properties
                 SelectedRentalRecord = updatedRecord;
             }
         }
 
-        // -----  CanExecute commands  -----
-
-        // CanUpdate when ShelfNumber, SelectedRental != null
-        private bool CanUpdate()
+        private void Update(object? parameter = null)
         {
-            if (SelectedRentalRecord == null || ShelfNumber == null)
+            if (ShelfNumber == null || SelectedRentalRecord == null) return;
+
+            Shelf targetShelf = _shelfRepository.GetById((int)ShelfNumber);
+            if (targetShelf == null || targetShelf.Status != Core.Models.Status.Ledig)
             {
-                return false;
+                MessageBox.Show($"Reol nr. {(int)ShelfNumber} er ikke ledig. Vælg en anden.", "Fejl", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
-            return true;
+
+            // Update old shelf to "Ledig"
+            Shelf oldShelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
+            if (oldShelf != null)
+            {
+                oldShelf.Status = Core.Models.Status.Ledig;
+                _shelfRepository.Update(oldShelf);
+            }
+
+            // Update target shelf to "Booket"
+            targetShelf.Status = Core.Models.Status.Booket;
+            _shelfRepository.Update(targetShelf);
+
+            // Delete old rental and create a new rental with new ShelfNumber
+            _rentalRepository.Delete(SelectedRentalRecord.RentalId);
+
+            Rental newRental = new Rental(targetShelf.ShelfNumber, DateTime.Today, SelectedRentalRecord.RenterId);
+            _rentalRepository.Add(newRental);
+
+            // Replace in DataGrid collection
+            RentalRecord updatedRecord = SelectedRentalRecord with
+            {
+                RentalId = newRental.RentalId,
+                ShelfNumber = targetShelf.ShelfNumber,
+                ShelfConfigurationChoosen = targetShelf.ShelfConfiguration,
+                Status = targetShelf.Status,
+                StartDate = DateTime.Today,
+                EndDate = null
+            };
+
+            int index = RentalRecords.IndexOf(SelectedRentalRecord);
+            if (index >= 0)
+            {
+                RentalRecords[index] = updatedRecord;
+            }
+
+            SelectedRentalRecord = updatedRecord;
         }
 
-        // CanTerminate when SelectedRental != null
-        private bool CanTerminate()
-        {
-            if (SelectedRentalRecord == null)
-            {
-                return false;
-            }
-            return true;
-        }
+        private bool CanUpdate(object? parameter) => SelectedRentalRecord != null && ShelfNumber != null;
 
-        // -----  public commands  -----
+        private bool CanTerminate(object? parameter) => SelectedRentalRecord != null;
 
-        // Fetches every shelf from the database.
-        // Made public so MainViewModel can refresh the list when navigating here.
         public void LoadRentalRecords()
         {
             RentalRecords.Clear();
@@ -242,7 +268,19 @@ namespace Reolmarked.UI.ViewModels
             {
                 var rentalShelf = _shelfRepository.GetById(rental.ShelfNumber);
                 var rentalRenter = _renterRepository.GetById(rental.RenterId);
-                RentalRecords.Add(new RentalRecord(rental.RenterId,rental.StartDate,rentalRenter.FirstName, rentalRenter.LastName, rentalRenter.PhoneNumber, rental.ShelfNumber, rentalShelf.Configuration, rentalShelf.Status));
+
+                RentalRecords.Add(new RentalRecord(
+                    rental.RentalId,
+                    rental.RenterId,
+                    rental.StartDate,
+                    rental.EndDate,
+                    rentalRenter?.FirstName ?? "",
+                    rentalRenter?.LastName ?? "",
+                    rentalRenter?.PhoneNumber ?? "",
+                    rental.ShelfNumber,
+                    rentalShelf?.ShelfConfiguration ?? ShelfConfiguration.SeksHylder,
+                    rentalShelf?.Status ?? Core.Models.Status.Ledig
+                ));
             }
         }
     }

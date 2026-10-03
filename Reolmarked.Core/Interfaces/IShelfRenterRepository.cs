@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Reolmarked.Core.Models;
 
-namespace Reolmarked.Core.Repositories
+namespace Reolmarked.Core.Interfaces
 {
     public interface IShelfRenterRepository
     {

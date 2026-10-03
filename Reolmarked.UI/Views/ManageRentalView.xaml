@@ -9,7 +9,6 @@
              d:DataContext="{d:DesignInstance Type=viewmodels:ManageRentalViewModel}">
 
     <UserControl.Resources>
-        <!-- Tekstfelt-stil der matcher wireframe med sorte kanter -->
         <Style TargetType="TextBox">
             <Setter Property="BorderBrush" Value="Black"/>
             <Setter Property="BorderThickness" Value="2"/>
@@ -19,7 +18,6 @@
             <Setter Property="Padding" Value="4,0"/>
         </Style>
 
-        <!-- Knap-stil der matcher ShelfView -->
         <Style TargetType="Button" x:Key="ActionButtonStyle">
             <Setter Property="BorderBrush" Value="Black"/>
             <Setter Property="BorderThickness" Value="2"/>
@@ -29,7 +27,6 @@
             <Setter Property="Padding" Value="10,2"/>
         </Style>
 
-        <!-- DataGrid-stil der matcher wireframe-udtrykket -->
         <Style TargetType="DataGrid">
             <Setter Property="BorderBrush" Value="Black"/>
             <Setter Property="BorderThickness" Value="2"/>
@@ -40,7 +37,6 @@
         </Style>
     </UserControl.Resources>
 
-    <!-- Ydre ramme med tyk sort kant -->
     <Border BorderBrush="Black" BorderThickness="4" Background="White" Margin="10">
         <Grid Margin="20">
             <Grid.ColumnDefinitions>
@@ -49,21 +45,24 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Venstre side: Formular til at opdatere oplysninger -->
+            <!-- Venstre side: Formular -->
             <Border Grid.Column="0" BorderBrush="Black" BorderThickness="2" Padding="15" Background="White">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <TextBlock Text="Oplysninger for leje" FontSize="18" FontWeight="Bold" Margin="0,0,0,5" />
 
-                        <!-- Formular til Startdato -->
-
+                        <!-- Startdato & Slutdato -->
                         <TextBlock Text="Startdato for leje:" FontWeight="SemiBold" Margin="0,5,0,2" />
-                        <TextBox Text="{Binding StartDate, UpdateSourceTrigger=PropertyChanged, StringFormat='d'}" 
+                        <TextBox Text="{Binding StartDate, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsReadOnly="True" Background="LightGray" 
+                                 Margin="0,0,0,5" />
+
+                        <TextBlock Text="Slutdato for leje:" FontWeight="SemiBold" Margin="0,5,0,2" />
+                        <TextBox Text="{Binding EndDate, UpdateSourceTrigger=PropertyChanged}" 
                                  IsReadOnly="True" Background="LightGray" 
                                  Margin="0,0,0,10" />
 
-                        <!-- Formular til Reollejer -->
-
+                        <!-- Reollejer -->
                         <TextBlock Text="Reollejer" FontSize="16" FontWeight="DemiBold" Margin="0,0,0,0" />
 
                         <TextBlock Text="Fornavn:" FontWeight="SemiBold" Margin="0,5,0,2" />
@@ -81,8 +80,7 @@
                                  IsReadOnly="True" Background="LightGray" 
                                  Margin="0,0,0,15" />
 
-                        <!-- Formular til Reol -->
-
+                        <!-- Reol -->
                         <TextBlock Text="Reol" FontSize="16" FontWeight="DemiBold" Margin="0,0,0,0" />
 
                         <TextBlock Text="Reol nr:" FontWeight="SemiBold" Margin="0,5,0,2" />
@@ -90,7 +88,7 @@
                                  Margin="0,0,0,0" />
 
                         <TextBlock Text="Konfiguration:" FontWeight="SemiBold" Margin="0,5,0,2" />
-                        <TextBox Text="{Binding Configuration, UpdateSourceTrigger=PropertyChanged}" 
+                        <TextBox Text="{Binding ShelfConfigurationChoosen, UpdateSourceTrigger=PropertyChanged}" 
                                  IsReadOnly="True" Background="LightGray" 
                                  Margin="0,0,0,0" />
 
@@ -102,7 +100,7 @@
                 </ScrollViewer>
             </Border>
 
-            <!-- Højre side: DataGrid og Handlingsknapper -->
+            <!-- Højre side: DataGrid & Knapper -->
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -118,16 +116,15 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Fornavn" Binding="{Binding FirstName}" Width="*" />
                         <DataGridTextColumn Header="Efternavn" Binding="{Binding LastName}" Width="*" />
-                        <DataGridTextColumn Header="Tlf. nr." Binding="{Binding PhoneNumber}" Width="70" />                        
-                        <DataGridTextColumn Header="Reol nr." Binding="{Binding ShelfNumber}" Width="50" />
-                        <DataGridTextColumn Header="Konfiguration" Binding="{Binding Configuration}" Width="*" />
+                        <DataGridTextColumn Header="Tlf. nr." Binding="{Binding PhoneNumber}" Width="70" />
+                        <DataGridTextColumn Header="Reol nr." Binding="{Binding ShelfNumber}" Width="55" />
+                        <DataGridTextColumn Header="Konfiguration" Binding="{Binding ShelfConfigurationChoosen}" Width="*" />
                         <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" />
+                        <DataGridTextColumn Header="Slutdato" Binding="{Binding EndDate, StringFormat=d, TargetNullValue='Aktiv'}" Width="75" />
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <!-- Handlingsknapper på dansk -->
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0">
-
                     <Button Content="Opdater" 
                             Style="{StaticResource ActionButtonStyle}" 
                             Command="{Binding UpdateCommand}" 

@@ -4,6 +4,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using Reolmarked.Core.Interfaces;
 using Reolmarked.Core.Models;
 using Reolmarked.Core.Repositories;
 using Reolmarked.UI.Commands;

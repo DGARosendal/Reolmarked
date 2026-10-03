@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using Reolmarked.UI.ViewModels;
 using Reolmarked.Core.Repositories;
+using Reolmarked.Core.Interfaces;
 
 namespace Reolmarked.UI.Views
 {
