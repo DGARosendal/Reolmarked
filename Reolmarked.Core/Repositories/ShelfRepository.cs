@@ -67,27 +67,32 @@ namespace Reolmarked.Core.Repositories
 
         public void Add(Shelf shelf)
         {
-            string sql = @"INSERT INTO dbo.SHELF (Status, ShelfConfiguration)
-                           VALUES (@Status, @ShelfConfiguration);
-                           SELECT SCOPE_IDENTITY();";
+            // 1. Calculate the next ShelfNumber using LINQ
+            int nextShelfNumber = (GetAll().Select(s => (int?)s.ShelfNumber).Max() ?? 0) + 1;
+
+            // 2. Enable IDENTITY_INSERT so SQL Server allows passing an explicit ID
+            string sql = @"
+                SET IDENTITY_INSERT dbo.SHELF ON;
+
+                INSERT INTO dbo.SHELF (ShelfNumber, Status, ShelfConfiguration)
+                VALUES (@ShelfNumber, @Status, @ShelfConfiguration);
+
+                SET IDENTITY_INSERT dbo.SHELF OFF;";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 SqlCommand command = new SqlCommand(sql, connection);
 
-                // Convert enum values to string for database storage
+                command.Parameters.AddWithValue("@ShelfNumber", nextShelfNumber);
                 command.Parameters.AddWithValue("@Status", shelf.Status.ToString());
                 command.Parameters.AddWithValue("@ShelfConfiguration", shelf.ShelfConfiguration.ToString());
 
                 connection.Open();
-
-                object result = command.ExecuteScalar();
-                if (result != null && result != DBNull.Value)
-                {
-                    // Set the auto-generated identity ID back on the object
-                    shelf.ShelfNumber = Convert.ToInt32(result);
-                }
+                command.ExecuteNonQuery();
             }
+
+            // Assign the incremented ID back to the object in memory
+            shelf.ShelfNumber = nextShelfNumber;
         }
 
         public void Update(Shelf shelf)

@@ -32,7 +32,7 @@ namespace Reolmarked.UI.ViewModels
                     {
                         ShelfNumber = _selectedShelf.ShelfNumber;
                         Status = _selectedShelf.Status;
-                        Configuration = _selectedShelf.ShelfConfiguration;
+                        SelectedShelfConfiguration = _selectedShelf.ShelfConfiguration;
                     }
                     UpdateCommand?.RaiseCanExecuteChanged();
                 }
@@ -54,7 +54,7 @@ namespace Reolmarked.UI.ViewModels
         }
 
         private ShelfConfiguration _configuration = ShelfConfiguration.SeksHylder;
-        public ShelfConfiguration Configuration
+        public ShelfConfiguration SelectedShelfConfiguration
         {
             get => _configuration;
             set => SetField(ref _configuration, value);
@@ -118,7 +118,7 @@ namespace Reolmarked.UI.ViewModels
             {
                 // Create new shelf with temporary number 1 (DB auto-assigns real ID via SCOPE_IDENTITY)
                 // Using method CreateNewShelf for extra validation
-                var newShelf = Shelf.CreateNewShelf(1, Configuration, Status);
+                var newShelf = Shelf.CreateNewShelf(1, SelectedShelfConfiguration, Status);
 
                 _shelfRepository.Add(newShelf);
                 Shelves.Add(newShelf);
@@ -140,7 +140,7 @@ namespace Reolmarked.UI.ViewModels
             try
             {
                 SelectedShelf.UpdateStatus(SelectedShelf.Status,Status);
-                SelectedShelf.ShelfConfiguration = Configuration;
+                SelectedShelf.ShelfConfiguration = SelectedShelfConfiguration;
 
                 _shelfRepository.Update(SelectedShelf);
 
@@ -199,7 +199,7 @@ namespace Reolmarked.UI.ViewModels
             SelectedShelf = null;
             ShelfNumber = 0;
             Status = Status.Ledig;
-            Configuration = ShelfConfiguration.SeksHylder;
+            SelectedShelfConfiguration = ShelfConfiguration.SeksHylder;
         }
     }
 }

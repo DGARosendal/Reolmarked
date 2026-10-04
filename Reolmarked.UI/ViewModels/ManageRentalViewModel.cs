@@ -218,6 +218,12 @@ namespace Reolmarked.UI.ViewModels
                 return;
             }
 
+            if (SelectedRentalRecord.EndDate is not null)
+            {
+                MessageBox.Show($"Reollejer har allerede opsagt reol. Vælg en anden.", "Fejl", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             // Update old shelf to "Ledig"
             Shelf oldShelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
             if (oldShelf != null)
@@ -233,7 +239,7 @@ namespace Reolmarked.UI.ViewModels
             // Delete old rental and create a new rental with new ShelfNumber
             _rentalRepository.Delete(SelectedRentalRecord.RentalId);
 
-            Rental newRental = new Rental(targetShelf.ShelfNumber, DateTime.Today, SelectedRentalRecord.RenterId);
+            Rental newRental = new Rental(targetShelf.ShelfNumber, SelectedRentalRecord.StartDate, SelectedRentalRecord.RenterId);
             _rentalRepository.Add(newRental);
 
             // Replace in DataGrid collection

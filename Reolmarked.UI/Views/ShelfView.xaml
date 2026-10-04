@@ -123,7 +123,7 @@
                     <StackPanel Margin="0,0,15,0" Width="130">
                         <TextBlock Text="Konfiguration" Margin="0,0,0,2"/>
                         <ComboBox ItemsSource="{Binding ConfigurationOptions}" 
-                  SelectedItem="{Binding Configuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                  SelectedItem="{Binding SelectedShelfConfiguration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
 
                     <!-- Rediger Reol Button -->
