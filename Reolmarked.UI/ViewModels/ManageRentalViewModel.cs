@@ -233,7 +233,7 @@ namespace Reolmarked.UI.ViewModels
             // Delete old rental and create a new rental with new ShelfNumber
             _rentalRepository.Delete(SelectedRentalRecord.RentalId);
 
-            Rental newRental = new Rental(targetShelf.ShelfNumber, DateTime.Today, SelectedRentalRecord.RenterId);
+            Rental newRental = new Rental(targetShelf.ShelfNumber, SelectedRentalRecord.StartDate, SelectedRentalRecord.RenterId);
             _rentalRepository.Add(newRental);
 
             // Replace in DataGrid collection
