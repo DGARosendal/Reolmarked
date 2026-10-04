@@ -71,13 +71,14 @@ namespace Reolmarked.Core.Repositories
             int nextShelfNumber = (GetAll().Select(s => (int?)s.ShelfNumber).Max() ?? 0) + 1;
 
             // 2. Enable IDENTITY_INSERT so SQL Server allows passing an explicit ID
-            string sql = @"
-                SET IDENTITY_INSERT dbo.SHELF ON;
+            string sql = """
+                -- 1. Reseed the counter to MAX(ShelfNumber) currently in the table
+                DBCC CHECKIDENT ('dbo.SHELF', RESEED);
 
-                INSERT INTO dbo.SHELF (ShelfNumber, Status, ShelfConfiguration)
-                VALUES (@ShelfNumber, @Status, @ShelfConfiguration);
-
-                SET IDENTITY_INSERT dbo.SHELF OFF;";
+                -- 2. Insert row (SQL Server automatically assigns the next sequential ShelfNumber)
+                INSERT INTO dbo.SHELF (Status, ShelfConfiguration)
+                VALUES (@Status, @ShelfConfiguration);
+                """;
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
