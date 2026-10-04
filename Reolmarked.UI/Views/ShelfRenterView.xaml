@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:viewmodels="clr-namespace:Reolmarked.UI.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="850">
+             d:DesignHeight="600" d:DesignWidth="900">
 
     <UserControl.DataContext>
         <viewmodels:ShelfRenterViewModel />
@@ -30,6 +30,7 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="Padding" Value="10,2"/>
+            <Setter Property="Margin" Value="5,0" />
         </Style>
 
         <!-- DataGrid-stil der matcher wireframe-udtrykket -->
@@ -94,22 +95,26 @@
                     <Button Content="Tilføj" 
                             Style="{StaticResource ActionButtonStyle}" 
                             Command="{Binding AddCommand}" 
-                            Width="90" Margin="5,0" />
+                            Width="90" />
 
                     <Button Content="Opdater" 
                             Style="{StaticResource ActionButtonStyle}" 
                             Command="{Binding UpdateCommand}" 
-                            Width="90" Margin="5,0" />
+                            Width="90" />
 
                     <Button Content="Slet" 
                             Style="{StaticResource ActionButtonStyle}" 
                             Command="{Binding DeleteCommand}" 
-                            Width="90" Margin="5,0" />
+                            Width="90" />
 
                     <Button Content="Nulstil valgte" 
                             Style="{StaticResource ActionButtonStyle}" 
                             Command="{Binding ClearSelectionCommand}" 
-                            Width="105" Margin="5,0" />
+                            Width="105" />
+                    <Button Content="Månedsberegning"
+                            Style="{StaticResource ActionButtonStyle}"
+                            
+                        />
                 </StackPanel>
             </Grid>
         </Grid>
