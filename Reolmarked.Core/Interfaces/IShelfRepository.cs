@@ -9,6 +9,6 @@ namespace Reolmarked.Core.Interfaces
         void Update(Shelf shelf);
         void Delete(int shelfNumber);
         List<Shelf> GetAll();
-        Shelf GetById(int shelfNumber);
+        Shelf? GetById(int shelfNumber);
     }
 }

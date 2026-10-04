@@ -16,7 +16,7 @@ namespace Reolmarked.Core.Interfaces
         void Update(Rental rental);
 
         // Delete (e.g., if a renter cancels)
-        void Delete(int shelfNumber);
+        void Delete(int rentalId);
 
         // Read all rentals
         List<Rental> GetAll();

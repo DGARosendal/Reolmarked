@@ -99,7 +99,6 @@ namespace Reolmarked.Core.Models
                 return _balance;
             }
 
-            // Same as FirstName above. 
             set
             {
                 _balance = value;
