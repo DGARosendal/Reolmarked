@@ -12,7 +12,7 @@ public class ShelfRepositoryIntegrationTests : IntegrationTestBase
     public void AddAndGetById_ShouldPersistShelfToDataBase()
     {
         // Arrange
-        var newShelf = new Shelf(1, Configuration.SeksHylder, Status.Ledig);
+        var newShelf = new Shelf(1, ShelfConfiguration.SeksHylder, Status.Ledig);
 
         // Act
         _repository.Add(newShelf);
@@ -23,7 +23,7 @@ public class ShelfRepositoryIntegrationTests : IntegrationTestBase
         // Assert
         Assert.IsNotNull(fetchedShelf);
         Assert.AreEqual(generatedId, fetchedShelf.ShelfNumber);
-        Assert.AreEqual(Configuration.SeksHylder, fetchedShelf.Configuration);
+        Assert.AreEqual(ShelfConfiguration.SeksHylder, fetchedShelf.ShelfConfiguration);
         Assert.AreEqual(Status.Ledig, fetchedShelf.Status);
 
         // Cleanup

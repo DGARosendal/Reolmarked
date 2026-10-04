@@ -24,7 +24,7 @@ public class ShelfViewModelTests
         // Assert
         Assert.IsNotNull(_viewModel.Shelves);
         Assert.AreEqual(Status.Ledig, _viewModel.Status);
-        Assert.AreEqual(Configuration.SeksHylder, _viewModel.Configuration);
+        Assert.AreEqual(ShelfConfiguration.SeksHylder, _viewModel.Configuration);
     }
 
 
@@ -32,7 +32,7 @@ public class ShelfViewModelTests
     public void SelectShelfCommand_ShouldUpdateSelectedShelf()
     {
         // Arrange
-        var testShelf = new Shelf(5, Configuration.TreHylderOgBøjle, Status.Booket);
+        var testShelf = new Shelf(5, ShelfConfiguration.TreHylderOgBøjle, Status.Booket);
 
         // Act
         _viewModel.SelectShelfCommand.Execute(testShelf);
@@ -41,7 +41,7 @@ public class ShelfViewModelTests
         Assert.AreEqual(testShelf, _viewModel.SelectedShelf);
         Assert.AreEqual(5, _viewModel.ShelfNumber);
         Assert.AreEqual(Status.Booket, _viewModel.Status);
-        Assert.AreEqual(Configuration.TreHylderOgBøjle, _viewModel.Configuration);
+        Assert.AreEqual(ShelfConfiguration.TreHylderOgBøjle, _viewModel.Configuration);
     }
 
 }

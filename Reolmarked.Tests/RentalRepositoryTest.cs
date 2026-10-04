@@ -30,7 +30,7 @@ namespace Reolmarked.Tests
 
             //Opretter testreolen med seks hylder og status ledig
             //Databasen erstatter 0 med det nye reolnummer, når vi gemmer
-            Shelf shelf = new Shelf(1, Configuration.SeksHylder, Status.Ledig);
+            Shelf shelf = new Shelf(1, ShelfConfiguration.SeksHylder, Status.Ledig);
 
             //Gemmer testreolen og sætter shelf.ShelfNumber til det nye nummer
             shelfRepository.Add(shelf);
@@ -63,6 +63,10 @@ namespace Reolmarked.Tests
 
             //sletter testreollejeren
             renterRepository.Delete(renter.RenterId);
+
+
+
+
         }
     }
 }
