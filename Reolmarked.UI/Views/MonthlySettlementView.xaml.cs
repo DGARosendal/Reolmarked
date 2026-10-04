@@ -14,11 +14,11 @@ using System.Windows.Shapes;
 namespace Reolmarked.UI.Views
 {
     /// <summary>
-    /// Interaction logic for MonhtlySettlementView.xaml
+    /// Interaction logic for MonthlySettlementView.xaml
     /// </summary>
-    public partial class MonhtlySettlementView : Page
+    public partial class MonthlySettlementView : UserControl
     {
-        public MonhtlySettlementView()
+        public MonthlySettlementView()
         {
             InitializeComponent();
         }
