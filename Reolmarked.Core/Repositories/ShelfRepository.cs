@@ -74,7 +74,7 @@ namespace Reolmarked.Core.Repositories
 
         public void Add(Shelf shelf)
         {
-            string sql = @"INSERT INTO dbo.SHELF (Status, ShelfConfiguration)
+            string sql = @"INSERT INTO dbo.SHELF (StatusId, ShelfConfigurationId)
                            VALUES (@StatusId, @ShelfConfigurationId);
                            SELECT SCOPE_IDENTITY();";
 
@@ -108,8 +108,8 @@ namespace Reolmarked.Core.Repositories
             {
                 SqlCommand command = new SqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@ShelfNumber", shelf.ShelfNumber);
-                command.Parameters.AddWithValue("@Status", 1 + (int) shelf.Status);
-                command.Parameters.AddWithValue("@ShelfConfiguration", 1 + (int) shelf.ShelfConfiguration);
+                command.Parameters.AddWithValue("@StatusId", 1 + (int) shelf.Status);
+                command.Parameters.AddWithValue("@ShelfConfigurationId", 1 + (int) shelf.ShelfConfiguration);
 
                 connection.Open();
                 command.ExecuteNonQuery();
