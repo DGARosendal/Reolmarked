@@ -20,7 +20,12 @@
                     throw new ArgumentException("Startdato er ikke angivet korrekt.");
 
                 if (value.Day != 1)
-                    throw new ArgumentException("A booking must start on the 1st of a month.");
+                    throw new ArgumentException("En udlejning skal starte på den 1. i en måned.");
+
+                // If the rental already has an EndDate, the new StartDate must not be after it.
+                // EndDate checks the same thing the other way around, so both setters agree.
+                if (_endDate.HasValue && value > _endDate.Value)
+                    throw new ArgumentException("Startdato kan ikke være efter slutdato.");
 
                 _startDate = value;
             }
