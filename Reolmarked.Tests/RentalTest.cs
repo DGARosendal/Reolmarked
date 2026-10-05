@@ -29,5 +29,20 @@ namespace Reolmarked.Tests
             //Act & Assert: Forsøg at oprette en udlejning, // og forvent, at der kastes en ArgumentException.
             Assert.ThrowsExactly<ArgumentException>(() => new Rental(1, startDate, 1));
         }
+
+        [TestMethod]
+        public void StartDate_AfterEndDate_ShouldThrowArgumentException()
+        {
+            //Arrange: Opret en udlejning med en gyldig startdato og slutdato.
+            Rental rental = new Rental(
+                shelfNumber: 1,
+                startDate: new DateTime(2026, 11, 1),
+                renterId: 1,
+                endDate: new DateTime(2026, 11, 30));
+
+            //Act & Assert: Forsøg at sætte startdatoen til en dato efter slutdatoen
+            Assert.ThrowsExactly<ArgumentException>(() => rental.StartDate = new DateTime(2026, 12, 1));
+
+        }
     }
 }
