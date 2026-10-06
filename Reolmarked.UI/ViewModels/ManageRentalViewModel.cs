@@ -158,6 +158,8 @@ namespace Reolmarked.UI.ViewModels
             SelectedRentalRecord = null;
         }
 
+        
+
         // Terminate rental by calculating EndDate and updating RentalId
         private void Terminate(object? parameter = null)
         {
@@ -217,6 +219,7 @@ namespace Reolmarked.UI.ViewModels
 
         private void Update(object? parameter = null)
         {
+            // 1. Basic Null Guard
             if (ShelfNumber == null || SelectedRentalRecord == null) return;
 
             try
@@ -228,32 +231,54 @@ namespace Reolmarked.UI.ViewModels
                     return;
                 }
 
-                // Update old shelf to "Ledig"
-                Shelf? oldShelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
-                if (oldShelf != null)
-                {
-                    oldShelf.Status = Core.Models.Status.Ledig;
-                    _shelfRepository.Update(oldShelf);
-                }
+            // 3. Create newRental UPFRONT to test business rules BEFORE database updates
+            Rental newRental = new Rental(
+                targetShelf.ShelfNumber,
+                SelectedRentalRecord.StartDate,
+                SelectedRentalRecord.RenterId,
+                SelectedRentalRecord.EndDate
+            );
 
-                // Update target shelf to "Booket"
-                targetShelf.Status = Core.Models.Status.Booket;
-                _shelfRepository.Update(targetShelf);
+            if (newRental.isTerminated())
+            {
+                MessageBox.Show($"Reollejer har allerede opsagt reol. Vælg en anden.", "Fejl", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return; // Exits safely without polluting the database!
+            }
 
-                // Delete old rental and create a new rental with new ShelfNumber
-                _rentalRepository.Delete(SelectedRentalRecord.RentalId);
+            // --- ALL CHECKS PASSED: SAFE TO MODIFY DATABASE BELOW ---
 
-                Rental newRental = new Rental(targetShelf.ShelfNumber, SelectedRentalRecord.StartDate, SelectedRentalRecord.RenterId);
-                _rentalRepository.Add(newRental);
+            // 4. Free up old shelf
+            Shelf oldShelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
+            if (oldShelf != null)
+            {
+                oldShelf.Status = Core.Models.Status.Ledig;
+                _shelfRepository.Update(oldShelf);
+            }
 
-                // Replace in DataGrid collection
+            // 5. Update target shelf
+            targetShelf.Status = Core.Models.Status.Booket;
+            _shelfRepository.Update(targetShelf);
+
+            // 6. Replace Rental record in DB
+            _rentalRepository.Delete(SelectedRentalRecord.RentalId);
+            _rentalRepository.Add(newRental); // Ensure Add() populates newRental.RentalId with SCOPE_IDENTITY()
+
+            // 7. Update UI Collection
+            int index = RentalRecords.IndexOf(SelectedRentalRecord);
+            if (index < 0)
+            {
+                index = RentalRecords.ToList().FindIndex(r => r.RentalId == SelectedRentalRecord.RentalId);
+            }
+
+            if (index >= 0)
+            {
                 RentalRecord updatedRecord = SelectedRentalRecord with
                 {
                     RentalId = newRental.RentalId,
                     ShelfNumber = targetShelf.ShelfNumber,
                     ShelfConfigurationChoosen = targetShelf.ShelfConfiguration,
                     Status = targetShelf.Status,
-                    StartDate = DateTime.Today,
+                    StartDate = newRental.StartDate,
                     EndDate = null
                 };
 
@@ -262,14 +287,6 @@ namespace Reolmarked.UI.ViewModels
                 {
                     RentalRecords[index] = updatedRecord;
                 }
-
-                SelectedRentalRecord = updatedRecord;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Kunne ikke opdatere udlejning: {ex.Message}", "Fejl",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
         }
 
         private bool CanUpdate(object? parameter) => SelectedRentalRecord != null && ShelfNumber != null;

@@ -67,6 +67,11 @@
             DateTime startOfNextMonth = new DateTime(referenceDate.Year, referenceDate.Month, 1).AddMonths(1);
             EndDate = startOfNextMonth.AddDays(-1);
         }
+
+        public bool isTerminated()
+        {
+            return EndDate.HasValue;
+        }
     }
 
 }
