@@ -14,11 +14,11 @@ namespace Reolmarked.Tests
         {
             // Arrange & Act
             // var shelf = new Shelf(1, Configuration, Status.Ledig);
-            var newShelf = new Shelf(1, Core.Models.Configuration.TreHylderOgBøjle, Status.Ledig);
+            var newShelf = new Shelf(1, Core.Models.ShelfConfiguration.TreHylderOgBøjle, Status.Ledig);
 
             // Assert
             Assert.AreEqual(1, newShelf.ShelfNumber);
-            Assert.AreEqual(Core.Models.Configuration.TreHylderOgBøjle, newShelf.Configuration);
+            Assert.AreEqual(Core.Models.ShelfConfiguration.TreHylderOgBøjle, newShelf.ShelfConfiguration);
             Assert.AreEqual(Status.Ledig, newShelf.Status);
         }
 
