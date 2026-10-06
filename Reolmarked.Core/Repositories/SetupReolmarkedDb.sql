@@ -12,21 +12,13 @@
 USE master;
 GO
 
-IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ReolmarkedDb')
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ReolmarkedTestDb')
 BEGIN
     ALTER DATABASE ReolmarkedDb SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
     DROP DATABASE ReolmarkedDb;
 END
 GO
 
--- ============================================================
--- STEP 2: CREATE THE FRESH DATABASE
--- ============================================================
-CREATE DATABASE ReolmarkedDb;
-GO
-
-USE ReolmarkedDb;
-GO
 
 -- ============================================================
 -- STEP 3: CREATE THE ENUM TABLES
