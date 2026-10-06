@@ -112,9 +112,8 @@
                             Command="{Binding ClearSelectionCommand}" 
                             Width="105" />
                     <Button Content="Månedsberegning"
-                            Style="{StaticResource ActionButtonStyle}"
-                            
-                        />
+                            Style="{StaticResource ActionButtonStyle}" 
+                            Command="{Binding OpenMonthlySettlementWindowCommand}"/>
                 </StackPanel>
             </Grid>
         </Grid>
