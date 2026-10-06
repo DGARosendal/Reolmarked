@@ -158,6 +158,8 @@ namespace Reolmarked.UI.ViewModels
             SelectedRentalRecord = null;
         }
 
+        
+
         // Terminate rental by calculating EndDate and updating RentalId
         private void Terminate(object? parameter = null)
         {
@@ -217,6 +219,7 @@ namespace Reolmarked.UI.ViewModels
 
         private void Update(object? parameter = null)
         {
+            // 1. Basic Null Guard
             if (ShelfNumber == null || SelectedRentalRecord == null) return;
 
             try
@@ -228,42 +231,61 @@ namespace Reolmarked.UI.ViewModels
                     return;
                 }
 
-                // Update old shelf to "Ledig"
-                Shelf? oldShelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
+                // 3. Create newRental UPFRONT to test business rules BEFORE database updates
+                Rental newRental = new Rental(
+                    targetShelf.ShelfNumber,
+                    SelectedRentalRecord.StartDate,
+                    SelectedRentalRecord.RenterId,
+                    SelectedRentalRecord.EndDate
+                );
+
+                if (newRental.isTerminated())
+                {
+                    MessageBox.Show($"Reollejer har allerede opsagt reol. Vælg en anden.", "Fejl", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return; // Exits safely without polluting the database!
+                }
+
+                // --- ALL CHECKS PASSED: SAFE TO MODIFY DATABASE BELOW ---
+
+                // 4. Free up old shelf
+                Shelf oldShelf = _shelfRepository.GetById(SelectedRentalRecord.ShelfNumber);
                 if (oldShelf != null)
                 {
                     oldShelf.Status = Core.Models.Status.Ledig;
                     _shelfRepository.Update(oldShelf);
                 }
 
-                // Update target shelf to "Booket"
+                // 5. Update target shelf
                 targetShelf.Status = Core.Models.Status.Booket;
                 _shelfRepository.Update(targetShelf);
 
-                // Delete old rental and create a new rental with new ShelfNumber
+                // 6. Replace Rental record in DB
                 _rentalRepository.Delete(SelectedRentalRecord.RentalId);
+                _rentalRepository.Add(newRental); // Ensure Add() populates newRental.RentalId with SCOPE_IDENTITY()
 
-                Rental newRental = new Rental(targetShelf.ShelfNumber, DateTime.Today, SelectedRentalRecord.RenterId);
-                _rentalRepository.Add(newRental);
-
-                // Replace in DataGrid collection
-                RentalRecord updatedRecord = SelectedRentalRecord with
-                {
-                    RentalId = newRental.RentalId,
-                    ShelfNumber = targetShelf.ShelfNumber,
-                    ShelfConfigurationChoosen = targetShelf.ShelfConfiguration,
-                    Status = targetShelf.Status,
-                    StartDate = DateTime.Today,
-                    EndDate = null
-                };
-
+                // 7. Update UI Collection
                 int index = RentalRecords.IndexOf(SelectedRentalRecord);
-                if (index >= 0)
+                if (index < 0)
                 {
-                    RentalRecords[index] = updatedRecord;
+                    index = RentalRecords.ToList().FindIndex(r => r.RentalId == SelectedRentalRecord.RentalId);
                 }
 
-                SelectedRentalRecord = updatedRecord;
+                if (index >= 0)
+                {
+                    RentalRecord updatedRecord = SelectedRentalRecord with
+                    {
+                        RentalId = newRental.RentalId,
+                        ShelfNumber = targetShelf.ShelfNumber,
+                        ShelfConfigurationChoosen = targetShelf.ShelfConfiguration,
+                        Status = targetShelf.Status,
+                        StartDate = newRental.StartDate,
+                        EndDate = null
+                    };
+          
+         
+                    RentalRecords[index] = updatedRecord;
+                    SelectedRentalRecord = updatedRecord;
+                }
             }
             catch (Exception ex)
             {
