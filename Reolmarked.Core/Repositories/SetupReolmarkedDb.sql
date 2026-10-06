@@ -3,25 +3,6 @@
 -- ============================================================
 -- This script:
 -- 1. Drops the old database if it exists.
--- 2. Creates four tables: SHELF, SHELFRENTER, RENTAL, MONTHLY_SETTLEMENT.
--- 3. Inserts test data according to the updated schema.
--- 4. Displays database content for verification.
--- ============================================================
-
-USE master;
-GO
-
-IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ReolmarkedDb')
-BEGIN
-    ALTER DATABASE ReolmarkedDb SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE ReolmarkedDb;
-END
-GO
--- ============================================================
--- REOLMARKED - COMPLETE DATABASE SETUP
--- ============================================================
--- This script:
--- 1. Drops the old database if it exists.
 -- 2. Creates and inserts values into tables for enums: SHELFCONFIGURATION, STATUS
 -- 2. Creates four tables: SHELF, SHELFRENTER, RENTAL, MONTHLY_SETTLEMENT.
 -- 3. Inserts test data according to the updated schema.
@@ -38,6 +19,14 @@ BEGIN
 END
 GO
 
+-- ============================================================
+-- STEP 2: CREATE THE FRESH DATABASE
+-- ============================================================
+CREATE DATABASE ReolmarkedDb;
+GO
+
+USE ReolmarkedDb;
+GO
 
 -- ============================================================
 -- STEP 3: CREATE THE ENUM TABLES
