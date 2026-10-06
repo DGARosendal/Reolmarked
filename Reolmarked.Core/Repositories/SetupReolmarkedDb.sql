@@ -12,7 +12,7 @@
 USE master;
 GO
 
-IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ReolmarkedTestDb')
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ReolmarkedDb')
 BEGIN
     ALTER DATABASE ReolmarkedDb SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
     DROP DATABASE ReolmarkedDb;
