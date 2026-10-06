@@ -17,29 +17,74 @@ BEGIN
     DROP DATABASE ReolmarkedDb;
 END
 GO
+-- ============================================================
+-- REOLMARKED - COMPLETE DATABASE SETUP
+-- ============================================================
+-- This script:
+-- 1. Drops the old database if it exists.
+-- 2. Creates and inserts values into tables for enums: SHELFCONFIGURATION, STATUS
+-- 2. Creates four tables: SHELF, SHELFRENTER, RENTAL, MONTHLY_SETTLEMENT.
+-- 3. Inserts test data according to the updated schema.
+-- 4. Displays database content for verification.
+-- ============================================================
 
--- ============================================================
--- STEP 2: CREATE THE FRESH DATABASE
--- ============================================================
-CREATE DATABASE ReolmarkedDb;
+USE master;
 GO
 
-USE ReolmarkedDb;
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ReolmarkedDb')
+BEGIN
+    ALTER DATABASE ReolmarkedDb SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE ReolmarkedDb;
+END
+GO
+
+
+-- ============================================================
+-- STEP 3: CREATE THE ENUM TABLES
+-- ============================================================
+CREATE TABLE dbo.SHELFCONFIGURATION (
+    ShelfConfigurationId    INT IDENTITY(1,1) NOT NULL,
+    ShelfConfigurationText      NVARCHAR(30)      NOT NULL,
+    CONSTRAINT PK_ShelfConfiguration    PRIMARY KEY (ShelfConfigurationId)
+);
+GO
+
+INSERT INTO dbo.SHELFCONFIGURATION(ShelfConfigurationText)
+VALUES
+('TreHylderOgBøjle'), -- ShelfConfigurationId = 1
+('SeksHylder');    -- ShelfConfigurationId = 2
+GO
+
+CREATE TABLE dbo.[STATUS] (
+    StatusId    INT IDENTITY(1,1) NOT NULL,
+    StatusText      NVARCHAR(30)      NOT NULL,
+    CONSTRAINT PK_Status    PRIMARY KEY (StatusId)
+);
+GO
+
+INSERT INTO dbo.[STATUS] (StatusText)
+VALUES
+('Ledig'), -- StatusId = 1
+('Booket'), -- StatusId = 2
+('Opsagt'), -- StatusId = 3
+('UdeAfDrift') -- StatusId = 4
 GO
 
 -- ============================================================
--- STEP 3: CREATE THE SHELF TABLE
+-- STEP 4: CREATE THE SHELF TABLE
 -- ============================================================
 CREATE TABLE dbo.SHELF (
     ShelfNumber        INT IDENTITY(1,1) NOT NULL,
-    [Status]           NVARCHAR(30) NOT NULL,
-    ShelfConfiguration NVARCHAR(50) NOT NULL,
-    CONSTRAINT PK_Shelf PRIMARY KEY (ShelfNumber)
+    StatusId           INT NOT NULL,
+    ShelfConfigurationId INT NOT NULL,
+    CONSTRAINT PK_Shelf PRIMARY KEY (ShelfNumber),
+    CONSTRAINT FK_Shelf_Status  FOREIGN KEY (StatusId) REFERENCES dbo.[STATUS](StatusId),
+    CONSTRAINT FK_Shelf_ShelfConfiguration  FOREIGN KEY (ShelfConfigurationId) REFERENCES dbo.SHELFCONFIGURATION(ShelfConfigurationId)
 );
 GO
 
 -- ============================================================
--- STEP 4: CREATE THE SHELFRENTER TABLE
+-- STEP 5: CREATE THE SHELFRENTER TABLE
 -- ============================================================
 CREATE TABLE dbo.SHELFRENTER (
     RenterId    INT IDENTITY(1,1) NOT NULL,
@@ -52,7 +97,7 @@ CREATE TABLE dbo.SHELFRENTER (
 GO
 
 -- ============================================================
--- STEP 5: CREATE THE RENTAL TABLE
+-- STEP 6: CREATE THE RENTAL TABLE
 -- ============================================================
 CREATE TABLE dbo.RENTAL (
     RentalId    INT IDENTITY(1,1) NOT NULL,
@@ -67,7 +112,7 @@ CREATE TABLE dbo.RENTAL (
 GO
 
 -- ============================================================
--- STEP 6: CREATE THE MONTHLY_SETTLEMENT TABLE
+-- STEP 7: CREATE THE MONTHLY_SETTLEMENT TABLE
 -- ============================================================
 CREATE TABLE dbo.MONTHLY_SETTLEMENT (
     SettlementId   INT IDENTITY(1,1) NOT NULL,
@@ -87,7 +132,7 @@ CREATE TABLE dbo.MONTHLY_SETTLEMENT (
 GO
 
 -- ============================================================
--- STEP 7: INSERT TEST DATA
+-- STEP 8: INSERT TEST DATA
 -- ============================================================
 INSERT INTO dbo.SHELFRENTER (FirstName, LastName, PhoneNumber, Balance)
 VALUES
@@ -95,16 +140,16 @@ VALUES
 ('Søren', 'Pape', '22887766', 150.00);    -- RenterId = 2
 GO
 
-INSERT INTO dbo.SHELF ([Status], ShelfConfiguration)
+INSERT INTO dbo.SHELF (StatusId, ShelfConfigurationId)
 VALUES
-('Ledig', 'SeksHylder'),         -- ShelfNumber = 1
-('Ledig', 'TreHylderOgBøjle'),  -- ShelfNumber = 2
-('Ledig', 'SeksHylder'),         -- ShelfNumber = 3
-('Booket', 'SeksHylder'),        -- ShelfNumber = 4
-('Opsagt', 'TreHylderOgBøjle'),  -- ShelfNumber = 5
-('UdeAfDrift', 'SeksHylder'),   -- ShelfNumber = 6
-('Ledig', 'TreHylderOgBøjle'),  -- ShelfNumber = 7
-('Ledig', 'SeksHylder');        -- ShelfNumber = 8
+(1, 2),  -- ShelfNumber = 1
+(1, 1),  -- ShelfNumber = 2
+(1, 2),  -- ShelfNumber = 3
+(2, 2),  -- ShelfNumber = 4
+(3, 1),  -- ShelfNumber = 5
+(4, 2),  -- ShelfNumber = 6
+(1, 1),  -- ShelfNumber = 7
+(1, 2);  -- ShelfNumber = 8
 GO
 
 INSERT INTO dbo.RENTAL (ShelfNumber, RenterId, StartDate, EndDate)
@@ -120,10 +165,18 @@ VALUES
 GO
 
 -- ============================================================
--- STEP 8: VERIFY THE DATA
+-- STEP 9: VERIFY THE DATA
 -- ============================================================
+SELECT * FROM dbo.SHELFCONFIGURATION;
+SELECT * FROM dbo.[STATUS];
 SELECT * FROM dbo.SHELF;
 SELECT * FROM dbo.SHELFRENTER;
 SELECT * FROM dbo.RENTAL;
 SELECT * FROM dbo.MONTHLY_SETTLEMENT;
+
+-- Using LEFT JOIN to SELECT SHELF with enum values
+SELECT dbo.SHELF.ShelfNumber, dbo.SHELFCONFIGURATION.ShelfConfigurationText, dbo.[STATUS].StatusText 
+FROM dbo.SHELF 
+LEFT JOIN dbo.SHELFCONFIGURATION ON dbo.SHELF.ShelfConfigurationId=dbo.SHELFCONFIGURATION.ShelfConfigurationId
+LEFT JOIN dbo.[STATUS] ON dbo.SHELF.StatusId=dbo.[STATUS].StatusId;
 GO
