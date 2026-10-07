@@ -218,7 +218,7 @@ classDiagram
         }
     }
 
-    IRentalRepository <|.. RentalRepository : implementere
+    IRentalRepository <|.. RentalRepository : implementerer
     RentalViewModel "1" -- "1" IRentalRepository : afhænger af 
     ManageRentalViewModel "1" -- "1" IRentalRepository : afhænger af 
     RentalViewModel "1" o-- "*" Rental : håndterer/opretter
