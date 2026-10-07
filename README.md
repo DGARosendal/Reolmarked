@@ -104,126 +104,56 @@ Dette diagram viser et komplet eksempel på tværs af lagene (Modellag, Reposito
 ```mermaid
 classDiagram
     namespace Reolmarked_Core_Models {
-        class Rental {
-            - _shelfNumber: int
-            - _startDate: DateTime
-            - _monthlyRent: double
-            - _renterId: int
-            - _userId: int
-            + ShelfNumber: int
-            + StartDate: DateTime
-            + MonthlyRent: double
+        class ShelfRenter {
             + RenterId: int
-            + UserId: int
-            + Rental(shelfNumber: int, startDate: DateTime, monthlyRent: double, renterId: int, userId: int)
+            + FirstName: string
+            + LastName: string
+            + PhoneNumber: string
+            + Balance: double
         }
     }
 
     namespace Reolmarked_Core_Repositories {
-        class IRentalRepository {
+        class IShelfRenterRepository {
             <<interface>>
-            + Add(rental: Rental) void
-            + Update(rental: Rental) void
-            + Delete(shelfNumber: int) void
-            + GetAll() List~Rental~
-            + GetByShelfNumber(shelfNumber: int) Rental
-            + GetByRenterId(renterId: int) List~Rental~
+            + Add(renter: ShelfRenter) void
+            + Update(renter: ShelfRenter) void
+            + Delete(renterId: int) void
+            + GetAll() List~ShelfRenter~
+            + GetById(renterId: int) ShelfRenter
         }
 
-        class RentalRepository {
+        class ShelfRenterRepository {
             - _connectionString: string
-            + RentalRepository()
-            + Add(rental: Rental) void
-            + Update(rental: Rental) void
-            + Delete(shelfNumber: int) void
-            + GetAll() List~Rental~
-            + GetByShelfNumber(shelfNumber: int) Rental
-            + GetByRenterId(renterId: int) List~Rental~
-            - MapRental(reader: SqlDataReader) Rental
+            + ShelfRenterRepository()
+            + Add(renter: ShelfRenter) void
+            + Update(renter: ShelfRenter) void
+            + Delete(renterId: int) void
+            + GetAll() List~ShelfRenter~
+            + GetById(renterId: int) ShelfRenter
+            - MapRenter(reader: SqlDataReader) ShelfRenter
         }
     }
 
     namespace Reolmarked_UI_ViewModels {
-        class RentalViewModel {
-            - _rentalRepository: IRentalRepository
-            - _shelfRepository: IShelfRepository
+        class ShelfRenterViewModel {
             - _renterRepository: IShelfRenterRepository
-            - _selectedShelf: Shelf?
-            - _searchPhoneNumber: string
-            - _selectedRenter: ShelfRenter?
-            - _newFirstName: string
-            - _newLastName: string
-            - _newPhoneNumber: string
-            - _startDate: DateTime
-            - _isConfirmationVisible: bool
-            + Shelves: ObservableCollection~Shelf~
-            + SelectedShelf: Shelf?
-            + SearchPhoneNumber: string
-            + SearchResults: ObservableCollection~ShelfRenter~
-            + SelectedRenter: ShelfRenter?
-            + NewFirstName: string
-            + NewLastName: string
-            + NewPhoneNumber: string
-            + StartDate: DateTime
-            + IsConfirmationVisible: bool
-            + CreateRenterCommand: RelayCommand
-            + SelectShelfCommand: RelayCommand
-            + BookCommand: RelayCommand
-            + ConfirmBookingCommand: RelayCommand
-            + CancelBookingCommand: RelayCommand
-            + RentalViewModel(rentalRepository: IRentalRepository, shelfRepository: IShelfRepository, renterRepository: IShelfRenterRepository)
-            + LoadShelves(): void
-            - SearchRenter(parameter: object?): void
-            - CreateRenter(parameter: object?): void
-            - SelectShelf(parameter: object?): void
-            - CanBook(parameter: object?): bool
-            - ShowConfirmation(parameter: object?): void
-            - ConfirmBooking(parameter: object?): void
-            - CancelBooking(parameter: object?): void
-        }
-
-        class ManageRentalViewModel {
-            - _rentalRepository: IRentalRepository
-            - _shelfRepository: IShelfRepository
-            - _renterRepository: IShelfRenterRepository
-            - _selectedRental: Rental?
-            - _searchText: string
-            - _showOnlyActive: bool
-            - _currentRenter: ShelfRenter?
-            - _currentShelf: Shelf?
-            - _isEndConfirmationVisible: bool
-            - _endDate: DateTime
-            + Rentals: ObservableCollection~Rental~
-            + SelectedRental: Rental?
-            + SearchText: string
-            + ShowOnlyActive: bool
-            + CurrentRenter: ShelfRenter?
-            + CurrentShelf: Shelf?
-            + IsEndConfirmationVisible: bool
-            + EndDate: DateTime
-            + EndRentalCommand: RelayCommand
-            + ConfirmEndRentalCommand: RelayCommand
-            + CancelEndRentalCommand: RelayCommand
-            + DeleteRentalCommand: RelayCommand
-            + RefreshCommand: RelayCommand
-            + ManageRentalViewModel(rentalRepository: IRentalRepository, shelfRepository: IShelfRepository, renterRepository: IShelfRenterRepository)
-            + LoadRentals(): void
-            - ApplyFilter(): void
-            - LoadSelectedDetails(): void
-            - CanEndRental(parameter: object?): bool
-            - ShowEndConfirmation(parameter: object?): void
-            - ConfirmEndRental(parameter: object?): void
-            - CancelEndRental(parameter: object?): void
-            - DeleteRental(parameter: object?): void
+            - _selectedRenter: ShelfRenter
+            + ShelfRenters: ObservableCollection~ShelfRenter~
+            + SelectedRenter: ShelfRenter
+            + AddCommand: RelayCommand
+            + UpdateCommand: RelayCommand
+            + ShelfRenterViewModel(renterRepository: IShelfRenterRepository)
         }
     }
 
-    IRentalRepository <|.. RentalRepository : implementerer
-    RentalViewModel "1" -- "1" IRentalRepository : afhænger af 
-    ManageRentalViewModel "1" -- "1" IRentalRepository : afhænger af 
-    RentalViewModel "1" o-- "*" Rental : håndterer/opretter
-    ManageRentalViewModel "1" o-- "*" Rental : viser/administrerer
-    RentalRepository "1" o-- "*" Rental : henter/mapper
+    IShelfRenterRepository <|.. ShelfRenterRepository : implementerer
+    ShelfRenterViewModel "1" -- "1" IShelfRenterRepository : afhænger af 
+    ShelfRenterViewModel "1" o-- "*" ShelfRenter : binder til
+    ShelfRenterRepository "1" o-- "*" ShelfRenter : indeholder
 ```
+
+
+
 
 
