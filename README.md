@@ -100,6 +100,7 @@ classDiagram
 # Reolmarked - Arkitektur DCD (Rental Eksempel)
 
 Dette diagram viser et komplet eksempel på tværs af lagene (Modellag, Repository / Data Access og Præsentation / ViewModel) med fokus på **Rental**-domænet.
+
 ```mermaid
 classDiagram
     namespace Reolmarked_Core_Models {
@@ -145,23 +146,75 @@ classDiagram
     namespace Reolmarked_UI_ViewModels {
         class RentalViewModel {
             - _rentalRepository: IRentalRepository
+            - _shelfRepository: IShelfRepository
+            - _renterRepository: IShelfRenterRepository
             - _selectedShelf: Shelf?
+            - _searchPhoneNumber: string
+            - _selectedRenter: ShelfRenter?
+            - _newFirstName: string
+            - _newLastName: string
+            - _newPhoneNumber: string
             - _startDate: DateTime
+            - _isConfirmationVisible: bool
             + Shelves: ObservableCollection~Shelf~
             + SelectedShelf: Shelf?
+            + SearchPhoneNumber: string
+            + SearchResults: ObservableCollection~ShelfRenter~
+            + SelectedRenter: ShelfRenter?
+            + NewFirstName: string
+            + NewLastName: string
+            + NewPhoneNumber: string
             + StartDate: DateTime
+            + IsConfirmationVisible: bool
+            + CreateRenterCommand: RelayCommand
+            + SelectShelfCommand: RelayCommand
             + BookCommand: RelayCommand
             + ConfirmBookingCommand: RelayCommand
+            + CancelBookingCommand: RelayCommand
             + RentalViewModel(rentalRepository: IRentalRepository, shelfRepository: IShelfRepository, renterRepository: IShelfRenterRepository)
+            + LoadShelves(): void
+            - SearchRenter(parameter: object?): void
+            - CreateRenter(parameter: object?): void
+            - SelectShelf(parameter: object?): void
+            - CanBook(parameter: object?): bool
+            - ShowConfirmation(parameter: object?): void
+            - ConfirmBooking(parameter: object?): void
+            - CancelBooking(parameter: object?): void
         }
 
         class ManageRentalViewModel {
             - _rentalRepository: IRentalRepository
+            - _shelfRepository: IShelfRepository
+            - _renterRepository: IShelfRenterRepository
             - _selectedRental: Rental?
+            - _searchText: string
+            - _showOnlyActive: bool
+            - _currentRenter: ShelfRenter?
+            - _currentShelf: Shelf?
+            - _isEndConfirmationVisible: bool
+            - _endDate: DateTime
             + Rentals: ObservableCollection~Rental~
             + SelectedRental: Rental?
+            + SearchText: string
+            + ShowOnlyActive: bool
+            + CurrentRenter: ShelfRenter?
+            + CurrentShelf: Shelf?
+            + IsEndConfirmationVisible: bool
+            + EndDate: DateTime
             + EndRentalCommand: RelayCommand
+            + ConfirmEndRentalCommand: RelayCommand
+            + CancelEndRentalCommand: RelayCommand
+            + DeleteRentalCommand: RelayCommand
+            + RefreshCommand: RelayCommand
             + ManageRentalViewModel(rentalRepository: IRentalRepository, shelfRepository: IShelfRepository, renterRepository: IShelfRenterRepository)
+            + LoadRentals(): void
+            - ApplyFilter(): void
+            - LoadSelectedDetails(): void
+            - CanEndRental(parameter: object?): bool
+            - ShowEndConfirmation(parameter: object?): void
+            - ConfirmEndRental(parameter: object?): void
+            - CancelEndRental(parameter: object?): void
+            - DeleteRental(parameter: object?): void
         }
     }
 
