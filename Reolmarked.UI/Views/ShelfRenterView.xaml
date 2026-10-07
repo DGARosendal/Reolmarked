@@ -7,10 +7,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="850">
 
-    <UserControl.DataContext>
-        <viewmodels:ShelfRenterViewModel />
-    </UserControl.DataContext>
-
     <UserControl.Resources>
         <!-- Tekstfelt-stil der matcher wireframe med sorte kanter -->
         <Style TargetType="TextBox">
