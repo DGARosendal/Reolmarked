@@ -1,7 +1,8 @@
-﻿using System.Windows;
-using Reolmarked.UI.ViewModels;
-using Reolmarked.Core.Repositories;
+﻿using Microsoft.Extensions.Configuration;
 using Reolmarked.Core.Interfaces;
+using Reolmarked.Core.Repositories;
+using Reolmarked.UI.ViewModels;
+using System.Windows;
 
 namespace Reolmarked.UI.Views
 {
@@ -13,13 +14,23 @@ namespace Reolmarked.UI.Views
         public MainWindow()
         {
             InitializeComponent();
+            IConfigurationRoot config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            string? ConnectionString = config.GetConnectionString("DefaultConnection");
+            if (ConnectionString is null)
+            {
+                MessageBox.Show("Kan ikke læse AppSettings");
+            }
+            else
+            {
+                // Create one repository per table and pass them into MainViewModel.
+                IShelfRepository shelfRepository = new ShelfRepository(ConnectionString);
+                IShelfRenterRepository shelfRenterRepository = new ShelfRenterRepository(ConnectionString);
+                IRentalRepository rentalRepository = new RentalRepository(ConnectionString);
 
-            // Create one repository per table and pass them into MainViewModel.
-            IShelfRepository shelfRepository = new ShelfRepository();
-            IShelfRenterRepository shelfRenterRepository = new ShelfRenterRepository();
-            IRentalRepository rentalRepository = new RentalRepository();
+                DataContext = new MainViewModel(shelfRepository, shelfRenterRepository, rentalRepository);
+            }
 
-            DataContext = new MainViewModel(shelfRepository, shelfRenterRepository, rentalRepository);
+            
         }
     }
 }
