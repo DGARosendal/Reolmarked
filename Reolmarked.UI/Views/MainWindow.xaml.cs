@@ -16,21 +16,13 @@ namespace Reolmarked.UI.Views
             InitializeComponent();
             IConfigurationRoot config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
             string? ConnectionString = config.GetConnectionString("DefaultConnection");
-            if (ConnectionString is null)
-            {
-                MessageBox.Show("Kan ikke læse AppSettings");
-            }
-            else
-            {
-                // Create one repository per table and pass them into MainViewModel.
-                IShelfRepository shelfRepository = new ShelfRepository(ConnectionString);
-                IShelfRenterRepository shelfRenterRepository = new ShelfRenterRepository(ConnectionString);
-                IRentalRepository rentalRepository = new RentalRepository(ConnectionString);
 
-                DataContext = new MainViewModel(shelfRepository, shelfRenterRepository, rentalRepository);
-            }
+            // Create one repository per table and pass them into MainViewModel.
+            IShelfRepository shelfRepository = new ShelfRepository(ConnectionString);
+            IShelfRenterRepository shelfRenterRepository = new ShelfRenterRepository(ConnectionString);
+            IRentalRepository rentalRepository = new RentalRepository(ConnectionString);
 
-            
+            DataContext = new MainViewModel(shelfRepository, shelfRenterRepository, rentalRepository);
         }
     }
 }
