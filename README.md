@@ -105,11 +105,21 @@ Dette diagram viser et komplet eksempel på tværs af lagene (Modellag, Reposito
 classDiagram
     namespace Reolmarked_Core_Models {
         class ShelfRenter {
+            - MaxNameLength: int
+            - MaxPhoneNumberLength: int
+            - _firstName: string
+            - _lastName: string
+            - _phoneNumber: string
+            - _balance: double
             + RenterId: int
             + FirstName: string
             + LastName: string
             + PhoneNumber: string
             + Balance: double
+            + ShelfRenter(renterId: int, firstName: string, lastName: string, phoneNumber: string, balance: double)
+            + ShelfRenter(firstName: string, lastName: string, phoneNumber: string)
+            - ValidateName(name: string, fieldName: string) string
+            - ValidatePhoneNumber(phoneNumber: string) string
         }
     }
 
@@ -139,11 +149,31 @@ classDiagram
         class ShelfRenterViewModel {
             - _renterRepository: IShelfRenterRepository
             - _selectedRenter: ShelfRenter
+            - _firstName: string
+            - _lastName: string
+            - _phoneNumber: string
+            - _balance: double
             + ShelfRenters: ObservableCollection~ShelfRenter~
             + SelectedRenter: ShelfRenter
+            + FirstName: string
+            + LastName: string
+            + PhoneNumber: string
+            + Balance: double
             + AddCommand: RelayCommand
             + UpdateCommand: RelayCommand
+            + DeleteCommand: RelayCommand
+            + ClearSelectionCommand: RelayCommand
+            + OpenMonthlySettlementCommand: RelayCommand
+            + ShelfRenterViewModel()
             + ShelfRenterViewModel(renterRepository: IShelfRenterRepository)
+            - ClearSelection(parameter: object) void
+            - LoadRenters() void
+            - CanUpdate(parameter: object) bool
+            - CanDelete(parameter: object) bool
+            - AddRenter(parameter: object) void
+            - UpdateRenter(parameter: object) void
+            - DeleteRenter(parameter: object) void
+            - ClearForm() void
         }
     }
 
