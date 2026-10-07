@@ -15,16 +15,6 @@ namespace Reolmarked.Core.Repositories
         private Dictionary<int, ShelfConfiguration> _shelfConfigurations = new Dictionary<int, ShelfConfiguration>();
         private Dictionary<int, Status> _statuses = new Dictionary<int, Status>();
 
-
-        public ShelfRepository()
-        {
-            _connectionString = @"Server=localhost;Database=ReolmarkedDb;Trusted_Connection=True;TrustServerCertificate=True;";
-
-            // Populate collections for Enums
-            SetShelfConfigurations();
-            SetStatuses();
-        }
-
         public ShelfRepository(string connectionString)
         {
             _connectionString = connectionString;

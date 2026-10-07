@@ -11,11 +11,6 @@ namespace Reolmarked.Core.Repositories
     {
         private readonly string _connectionString;
 
-        public ShelfRenterRepository()
-        {
-            _connectionString = @"Server=localhost;Database=ReolmarkedDb;Trusted_Connection=True;TrustServerCertificate=True;";
-        }
-
         public ShelfRenterRepository(string connectionString)
         {
             _connectionString = connectionString;
