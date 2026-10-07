@@ -1,8 +1,148 @@
 # Reolmarked
 
 
-DCD for sprint 3:
-<img width="6719" height="3928" alt="image" src="https://github.com/user-attachments/assets/b3481302-ee61-4010-8250-afe059fcefdb" />
-<img width="2848" height="3632" alt="image" src="https://github.com/user-attachments/assets/44cbf025-cb7a-4846-aa76-88f59a3ecfda" />
+
+```mermaid
+classDiagram
+    namespace Reolmarked_Core_Models {
+        class Configuration {
+            <<enumeration>>
+            TreHylderOgBøjle
+            SeksHylder
+        }
+
+        class Status {
+            <<enumeration>>
+            Ledig
+            Booket
+            Opsagt
+            UdeAfDrift
+        }
+
+        class Shelf {
+            - _shelfNumber: int
+            - _configuration: Configuration
+            - _status: Status
+            + ShelfNumber: int
+            + Configuration: Configuration
+            + Status: Status
+            + Shelf(shelfNumber: int, configuration: Configuration, status: Status)
+        }
+
+        class ShelfRenter {
+            - MaxNameLength: int
+            - MaxPhoneNumberLength: int
+            - _firstName: string
+            - _lastName: string
+            - _phoneNumber: string
+            - _balance: double
+            + RenterId: int
+            + FirstName: string
+            + LastName: string
+            + PhoneNumber: string
+            + Balance: double
+            + ShelfRenter(renterId: int, firstName: string, lastName: string, phoneNumber: string, balance: double)
+            + ShelfRenter(firstName: string, lastName: string, phoneNumber: string)
+            - ValidateName(name: string, fieldName: string) string
+            - ValidatePhoneNumber(phoneNumber: string) string
+        }
+
+        class Rental {
+            - _shelfNumber: int
+            - _startDate: DateTime
+            - _monthlyRent: double
+            - _renterId: int
+            - _userId: int
+            + ShelfNumber: int
+            + StartDate: DateTime
+            + MonthlyRent: double
+            + RenterId: int
+            + UserId: int
+            + Rental(shelfNumber: int, startDate: DateTime, monthlyRent: double, renterId: int, userId: int)
+        }
+
+        class MonthlySettlement {
+            - _settlementId: int
+            - _renterId: int
+            - _month: int
+            - _totalSales: double
+            - _commission: double
+            - _totalShelfRent: double
+            - _shelfCount: int
+            - _extraDiscount: double
+            - _finalAmount: double
+            - _isProcessed: bool
+            + SettlementId: int
+            + RenterId: int
+            + Month: int
+            + TotalSales: double
+            + Commission: double
+            + TotalShelfRent: double
+            + ShelfCount: int
+            + ExtraDiscount: double
+            + FinalAmount: double
+            + IsProcessed: bool
+            + MonthlySettlement(settlementId: int, renterId: int, month: int, totalSales: double, commission: double, totalShelfRent: double, shelfCount: int, extraDiscount: double, finalAmount: double, isProcessed: bool)
+        }
+    }
+
+    Shelf "1" -- "1" Configuration
+    Shelf "1" -- "1" Status
+    Rental "0..*" -- "1" Shelf
+    Rental "1..*" -- "1" ShelfRenter
+    MonthlySettlement "*" -- "1" ShelfRenter
+```
+```mermaid
+
+classDiagram
+    namespace Reolmarked_Core_Models {
+        class ShelfRenter {
+            + RenterId: int
+            + FirstName: string
+            + LastName: string
+            + PhoneNumber: string
+            + Balance: double
+        }
+    }
+
+    namespace Reolmarked_Core_Repositories {
+        class IShelfRenterRepository {
+            <<interface>>
+            + Add(renter: ShelfRenter) void
+            + Update(renter: ShelfRenter) void
+            + Delete(renterId: int) void
+            + GetAll() List~ShelfRenter~
+            + GetById(renterId: int) ShelfRenter
+        }
+
+        class ShelfRenterRepository {
+            - _connectionString: string
+            + ShelfRenterRepository()
+            + Add(renter: ShelfRenter) void
+            + Update(renter: ShelfRenter) void
+            + Delete(renterId: int) void
+            + GetAll() List~ShelfRenter~
+            + GetById(renterId: int) ShelfRenter
+            - MapRenter(reader: SqlDataReader) ShelfRenter
+        }
+    }
+
+    namespace Reolmarked_UI_ViewModels {
+        class ShelfRenterViewModel {
+            - _renterRepository: IShelfRenterRepository
+            - _selectedRenter: ShelfRenter
+            + ShelfRenters: ObservableCollection~ShelfRenter~
+            + SelectedRenter: ShelfRenter
+            + AddCommand: RelayCommand
+            + UpdateCommand: RelayCommand
+            + ShelfRenterViewModel(renterRepository: IShelfRenterRepository)
+        }
+    }
+
+    IShelfRenterRepository <|.. ShelfRenterRepository
+    ShelfRenterViewModel "1" -- "1" IShelfRenterRepository : afhænger af (DI)
+    ShelfRenterViewModel "1" o-- "*" ShelfRenter : binder til
+    ShelfRenterRepository "1" o-- "*" ShelfRenter : henter/mapper
+```
 
 
