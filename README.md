@@ -1,4 +1,9 @@
+
 # Reolmarked
+
+# Reolmarked - UC3 - SD - Administrate Rental: 
+<img width="1567" height="2048" alt="UC3_SD_Administrate_Rental" src="https://github.com/user-attachments/assets/cba899f3-0ba6-4dc2-bb9c-da9c1279c483" />
+
 
 # Reolmarked - Design Class Diagrams (DCD)
 
