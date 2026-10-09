@@ -65,10 +65,6 @@ namespace Reolmarked.UI.ViewModels
         public RelayCommand DeleteCommand { get; }
         public RelayCommand SelectShelfCommand { get; }
 
-        public ShelfViewModel() : this(new ShelfRepository())
-        {
-        }
-
         public ShelfViewModel(IShelfRepository shelfRepository)
         {
             _shelfRepository = shelfRepository;

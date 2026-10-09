@@ -11,11 +11,6 @@ namespace Reolmarked.Core.Repositories
     {
         private readonly string _connectionString;
 
-        public MonthlySettlementRepository()
-        {
-            _connectionString = @"Server=localhost;Database=ReolmarkedDb;Trusted_Connection=True;TrustServerCertificate=True;";
-        }
-
         public MonthlySettlementRepository(string connectionString)
         {
             _connectionString = connectionString;

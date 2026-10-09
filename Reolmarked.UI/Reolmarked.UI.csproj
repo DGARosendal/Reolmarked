@@ -9,7 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="bin\Debug\net10.0-windows\AppSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.12" />
   </ItemGroup>
 
   <ItemGroup>
