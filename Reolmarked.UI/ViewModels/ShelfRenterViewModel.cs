@@ -8,6 +8,7 @@ using Reolmarked.Core.Interfaces;
 using Reolmarked.Core.Models;
 using Reolmarked.Core.Repositories;
 using Reolmarked.UI.Commands;
+using Reolmarked.UI.Views;
 
 namespace Reolmarked.UI.ViewModels
 {
@@ -62,6 +63,7 @@ namespace Reolmarked.UI.ViewModels
         public RelayCommand UpdateCommand { get; }
         public RelayCommand DeleteCommand { get; }
         public RelayCommand ClearSelectionCommand { get; }
+        public RelayCommand OpenMonthlySettlementWindowCommand { get; }
 
         public ShelfRenterViewModel() : this(new ShelfRenterRepository()) { }
 
@@ -74,6 +76,7 @@ namespace Reolmarked.UI.ViewModels
             UpdateCommand = new RelayCommand(UpdateRenter, CanUpdate);
             DeleteCommand = new RelayCommand(DeleteRenter, CanDelete);
             ClearSelectionCommand = new RelayCommand(ClearSelection);
+            OpenMonthlySettlementWindowCommand = new RelayCommand(OpenMonthlySettlementWindow);
 
             LoadRenters();
         }
@@ -192,6 +195,35 @@ namespace Reolmarked.UI.ViewModels
             FirstName = string.Empty;
             LastName = string.Empty;
             PhoneNumber = string.Empty;
+        }
+
+        private void OpenMonthlySettlementWindow() 
+        {
+
+            try
+            {
+
+                if (SelectedRenter == null)
+                {
+                    MessageBox.Show("Vælg venligst en reollejer.", "Advarsel", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                var monthlySettlementWindow = new MonthlySettlementWindow();
+
+                // Sets the DataContext or passes the renter data to the Settlement ViewModel
+                if (monthlySettlementWindow.DataContext is MonthlySettlementViewModel monthlySettlementVM)
+                {
+                    monthlySettlementVM.LoadMonthlyRenterSettlement(SelectedRenter.RenterId);
+                }
+            
+                monthlySettlementWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Det opstod en fejl ved åbning af månedsberegning: {ex.Message}", "Fejl", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        
         }
     }
 }

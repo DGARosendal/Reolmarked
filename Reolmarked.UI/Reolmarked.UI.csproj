@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Reolmarked.Core\Reolmarked.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\UserControls\" />
+  </ItemGroup>
+
 </Project>

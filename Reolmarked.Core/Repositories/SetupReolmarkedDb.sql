@@ -125,8 +125,8 @@ GO
 -- ============================================================
 INSERT INTO dbo.SHELFRENTER (FirstName, LastName, PhoneNumber, Balance)
 VALUES
-('Mette', 'Frederiksen', '22334455', 0.00), -- RenterId = 1
-('Søren', 'Pape', '22887766', 150.00);    -- RenterId = 2
+('Mette', 'Frederiksen', '22334455', -220.00), -- RenterId = 1
+('Søren', 'Pape', '22887766', 50.00);    -- RenterId = 2
 GO
 
 INSERT INTO dbo.SHELF (StatusId, ShelfConfigurationId)
@@ -150,7 +150,8 @@ GO
 INSERT INTO dbo.MONTHLY_SETTLEMENT 
 (RenterId, [Month], TotalSales, Commission, TotalShelfRent, ShelfCount, ExtraDiscount, FinalAmount, IsProcessed)
 VALUES 
-(2, 2, 1000.00, 150.00, 400.00, 1, 0.00, 450.00, 1);
+(2, 2, 1000.00, 100.00, 850.00, 1, 0.00, 50.00, 1),
+(1,10,700, 70.00, 850.00, 1, 0.00, -220, 0)
 GO
 
 -- ============================================================
@@ -161,7 +162,7 @@ SELECT * FROM dbo.[STATUS];
 SELECT * FROM dbo.SHELF;
 SELECT * FROM dbo.SHELFRENTER;
 SELECT * FROM dbo.RENTAL;
-SELECT * FROM dbo.MONTHLY_SETTLEMENT;
+SELECT * FROM dbo.MONTHLY_SETTLEMENT;	
 
 -- Using LEFT JOIN to SELECT SHELF with enum values
 SELECT dbo.SHELF.ShelfNumber, dbo.SHELFCONFIGURATION.ShelfConfigurationText, dbo.[STATUS].StatusText 
