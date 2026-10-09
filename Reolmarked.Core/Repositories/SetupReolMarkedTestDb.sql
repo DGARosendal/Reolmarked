@@ -22,10 +22,10 @@ GO
 -- ============================================================
 -- STEP 2: CREATE THE FRESH DATABASE
 -- ============================================================
-CREATE DATABASE ReolmarkedTestDb;
+CREATE DATABASE ReolmarkedDb;
 GO
 
-USE ReolmarkedTestDb;
+USE ReolmarkedDb;
 GO
 
 -- ============================================================
