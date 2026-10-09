@@ -87,6 +87,7 @@
                         <DataGridTextColumn Header="Fornavn" Binding="{Binding FirstName}" Width="*" />
                         <DataGridTextColumn Header="Efternavn" Binding="{Binding LastName}" Width="*" />
                         <DataGridTextColumn Header="Telefonnummer" Binding="{Binding PhoneNumber}" Width="*" />
+                        <DataGridTextColumn Header="Balance" Binding="{Binding Balance}" Width="*" />
                     </DataGrid.Columns>
                 </DataGrid>
 

@@ -274,6 +274,27 @@ namespace Reolmarked.UI.ViewModels
         private void ConfirmMonthlySettlementProcessing()
         {
             IsProcessed = true;
+
+            var temporaryMonthlySettlement = new MonthlySettlement(
+                settlementId: _settlementId,
+                renterId: _renterId,
+                month: _monthNumber,
+                totalSales: _totalSales,
+                commission: _commission,
+                totalShelfRent: _totalShelfRent,
+                shelfCount: _shelfCount,
+                extraDiscount: _extraDiscount,
+                finalAmount: _finalAmount,
+                isProcessed: _isProcessed
+                );
+
+            // Save updated status
+            if (_settlementId > 0)
+            {
+                _monthlySettlementRepository.Update(temporaryMonthlySettlement);
+            }
+
+            // Close window
             foreach (Window window in Application.Current.Windows)
             {
                 if (window.DataContext == this)
@@ -286,6 +307,7 @@ namespace Reolmarked.UI.ViewModels
 
         private void CancelMonthlySettlementProcessing()
         {
+            // Does nothing, closes window
             foreach (Window window in Application.Current.Windows)
             {
                 if (window.DataContext == this)
