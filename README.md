@@ -1,5 +1,9 @@
 # Reolmarked
 
+# Reolmarked - UC3 - SD - Administrate Rental:
+<img width="1567" height="2048" alt="UC3_SD_Administrate_Rental" src="https://github.com/user-attachments/assets/e4fe5496-1c4f-4dd7-b575-0f3234d3f488" />
+
+
 # Reolmarked - Design Class Diagrams (DCD)
 
 Dette dokument indeholder projektets to versioner af DCD'et i overensstemmelse med projektkravet: Én model der viser sporbarhed til domænemodellen, og én model der viser eksempler på arkitekturens lag-samspil.
