@@ -267,14 +267,12 @@ namespace Reolmarked.UI.ViewModels
             }
             catch (Exception ex)
             {
-               
+                System.Diagnostics.Debug.WriteLine($"Calculation error: {ex.Message}");
             }
         }
 
         private void ConfirmMonthlySettlementProcessing()
         {
-            IsProcessed = true;
-
             var temporaryMonthlySettlement = new MonthlySettlement(
                 settlementId: _settlementId,
                 renterId: _renterId,
